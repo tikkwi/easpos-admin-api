@@ -16,6 +16,12 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "typeRoots": ["types", "libs/common/types"],
+    "paths": {
+      "@app/*": ["src/utils/*"],
+      "@common/*": ["libs/common/src/*"],
+      "@shared/*": ["libs/shared/src/*"]
+    }
   }
 }
