@@ -2,29 +2,25 @@ import { MERCHANT, METADATA } from '@common/constant';
 import { CoreService } from '@common/core/core.service';
 import { AppService } from '@common/decorator';
 import {
-  EApp,
+  CreateUserDto,
+  FindByIdDto,
+  GetUserDto,
+  UserServiceMethods,
+} from '@common/dto';
+import { MerchantServiceMethods } from '@common/dto/merchant.dto';
+import { User, UserSchema } from '@common/schema/user.schema';
+import {
   EEntityMetadata,
   EUser,
   getServiceToken,
   parsePath,
-} from '@common/helper';
-import { MetadataService } from 'apps/shared-api/src/metadata/metadata.service';
-import { User, UserSchema } from '@common/schema';
-import {
-  CreateUserDto,
-  CreateUserReturn,
-  FindByIdDto,
-  GetUserDto,
-  MerchantControllerMethods,
-  MetadataControllerMethods,
-  UserServiceMethods,
-} from '@common/types';
+} from '@common/utils';
 import {
   BadRequestException,
   ForbiddenException,
   Inject,
 } from '@nestjs/common';
-import { MerchantService } from '../merchant/merchant.service';
+import { MetadataServiceMethods } from '@shared/dto';
 
 @AppService()
 export class UserService
@@ -32,12 +28,12 @@ export class UserService
   implements UserServiceMethods
 {
   @Inject(getServiceToken(MERCHANT))
-  private readonly merchantService: MerchantControllerMethods;
+  private readonly merchantService: MerchantServiceMethods;
   @Inject(getServiceToken(METADATA))
-  private readonly metadataService: MetadataControllerMethods;
+  private readonly metadataService: MetadataServiceMethods;
 
   constructor() {
-    super(EApp.Admin, User.name, UserSchema);
+    super(User.name, UserSchema);
   }
 
   async getUser({ id, userName, mail, lean = true }: GetUserDto, _) {
@@ -49,19 +45,19 @@ export class UserService
     });
   }
 
-  async userWithAuth({ id }: FindByIdDto, { request }: Meta) {
+  async userWithAuth({ id, request }: FindByIdDto, _) {
     return {
       data: await this.repository.custom(async (model) => {
-        const [app, service, path] = parsePath(request.path);
+        const service = parsePath(request.path)[1];
         return {
           data: await model.aggregate([
             { $match: { _id: id } },
             {
               $lookup: {
-                from: 'userapppermission',
-                localField: 'appPermissions',
-                as: 'appPermissions',
+                from: 'userservicepermission',
+                localField: 'servicePermissions',
                 foreignField: '_id',
+                as: 'servicePermissions',
               },
             },
             {
@@ -86,38 +82,34 @@ export class UserService
                 isOwner: { $eq: ['$_id', id] },
               },
             },
-            { $unwind: '$appPermissions' },
-            { $match: { 'appPermissions.app': app } },
+            { $unwind: '$servicePermissions' },
+            { $match: { 'servicePermissions.service': service } },
             {
               $facet: {
-                appAllAllow: [
+                serviceAllAllow: [
                   {
                     $match: {
                       $or: [
                         { 'merchant.owner': id },
-                        { 'appPermissions.allowAll': true },
+                        { 'servicePermissions.allowAll': true },
                       ],
                     },
                   },
                 ],
-                appAllNotAllow: [
-                  { $match: { 'appPermissions.allowAll': false } },
+                serviceAllNotAllow: [
+                  { $match: { 'servicePermissions.allowAll': false } },
                   {
                     $lookup: {
                       from: 'userservicepermission',
-                      localField: 'appPermissions.services',
-                      as: 'services',
+                      localField: 'servicePermissions.permissions',
                       foreignField: '_id',
+                      as: 'permissions',
                     },
                   },
-                  { $unwind: '$appPermissions.services' },
+                  { $unwind: '$permissions' },
                   {
                     $match: {
-                      'appPermissions.services.service': service,
-                      $or: [
-                        { 'appPermissions.services.allowAll': true },
-                        { 'appPermissions.services.path': path },
-                      ],
+                      'permissions.services': { $eleMatch: request.path },
                     },
                   },
                 ],
@@ -125,7 +117,9 @@ export class UserService
             },
             {
               $project: {
-                merged: { $concatArrays: ['appAllAllow', 'appAllNotAllow'] },
+                merged: {
+                  $concatArrays: ['serviceAllAllow', 'serviceAllNotAllow'],
+                },
               },
             },
             { $unwind: '$merged' },
@@ -153,9 +147,15 @@ export class UserService
   }
 
   async createUser(
-    { merchantId, metadata: metadataValue, type, ...dto }: CreateUserDto,
-    { request }: Meta,
-  ): Promise<CreateUserReturn> {
+    {
+      merchantId,
+      metadata: metadataValue,
+      type,
+      request,
+      ...dto
+    }: CreateUserDto,
+    logTrail?: RequestLog[],
+  ) {
     let isForbidden = false;
     if (request.user) {
       if (request.user.type === EUser.Merchant)
@@ -163,8 +163,8 @@ export class UserService
     } else isForbidden = type !== EUser.Merchant;
     if (isForbidden) throw new ForbiddenException();
     const { data: merchant } = await this.merchantService.getMerchant(
-      { id: merchantId },
-      { request, useCustomDB: false },
+      { id: merchantId, request },
+      logTrail,
     );
     if (!merchant) throw new BadRequestException('Merchant not found');
     await this.metadataService.validateMetaValue(
@@ -176,8 +176,9 @@ export class UserService
               ? EEntityMetadata.Admin
               : EEntityMetadata.Customer,
         value: metadataValue,
+        request,
       },
-      { request, useCustomDB: false },
+      logTrail,
     );
     return await this.repository.create({
       ...dto,
