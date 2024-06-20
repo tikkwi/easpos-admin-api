@@ -1,19 +1,13 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
+import { MerchantModule } from 'src/merchant/merchant.module';
+import { MetadataModule } from 'src/metadata/metadata.module';
 import { UserController } from './user.controller';
 import { UserService } from './user.service';
-import { getGrpcClient } from '@common/helper';
-import { MERCHANT, METADATA } from '@common/constant';
-import { ClientsModule } from '@nestjs/microservices';
-import { User, UserSchema } from '@common/schema';
 
-const [client, services] = getGrpcClient([MERCHANT, METADATA]);
 @Module({
-  imports: [ClientsModule.register(client)],
+  imports: [MerchantModule, forwardRef(() => MetadataModule)],
   controllers: [UserController],
-  providers: [
-    UserService,
-    // ...getRepositoryProviders([{ name: User.name, schema: UserSchema }]),
-    ...services,
-  ],
+  providers: [UserService],
+  exports: [UserService],
 })
 export class UserModule {}

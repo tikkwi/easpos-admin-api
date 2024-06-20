@@ -1,19 +1,25 @@
-import { Module } from '@nestjs/common';
-import { MerchantService } from './merchant.service';
+import { Module, forwardRef } from '@nestjs/common';
+import { AddressModule } from '@shared/address/address.module';
+import { CategoryModule } from '@shared/category/category.module';
+import { MailModule } from '@shared/mail/mail.module';
+import { AppConfigModule } from 'src/app_config/app_config.module';
+import { MetadataModule } from 'src/metadata/metadata.module';
+import { UserModule } from 'src/user/user.module';
 import { MerchantController } from './merchant.controller';
-import { getGrpcClient } from '@app/helper';
-import { ADDRESS, CATEGORY, MAIL, MERCHANT, METADATA, USER } from '@app/constant';
-import { ClientsModule } from '@nestjs/microservices';
-import { Merchant, MerchantSchema } from '@app/schema';
+import { MerchantService } from './merchant.service';
+import { MerchantGrpcController } from './merchant.grpc.controller';
 
-const [client, services] = getGrpcClient([METADATA, MAIL, ADDRESS, USER, CATEGORY]);
 @Module({
-  imports: [ClientsModule.register(client)],
-  controllers: [MerchantController],
-  providers: [
-    MerchantService,
-    // ...getRepositoryProviders([{ name: Merchant.name, schema: MerchantSchema }]),
-    ...services,
+  imports: [
+    AppConfigModule,
+    MailModule,
+    AddressModule,
+    CategoryModule,
+    forwardRef(() => MetadataModule),
+    forwardRef(() => UserModule),
   ],
+  controllers: [MerchantController, MerchantGrpcController],
+  providers: [MerchantService],
+  exports: [MerchantService],
 })
 export class MerchantModule {}

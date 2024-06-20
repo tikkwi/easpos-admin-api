@@ -1,12 +1,16 @@
-import { Controller, Get } from '@nestjs/common';
+import { CoreController } from '@common/core/core.controller';
+import { AppController } from '@common/decorator';
+import { Get } from '@nestjs/common';
 import { AppService } from './admin_app.service';
 
-@Controller()
-export class AppController {
-  constructor(private readonly appService: AppService) {}
+@AppController()
+export class AdminAppController extends CoreController {
+  constructor(service: AppService) {
+    super(service);
+  }
 
   @Get()
   getHello(): string {
-    return this.appService.getHello();
+    return 'hello';
   }
 }

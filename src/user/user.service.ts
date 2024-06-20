@@ -1,12 +1,17 @@
 import { MERCHANT, METADATA } from '@common/constant';
 import { CoreService } from '@common/core/core.service';
 import { AppService } from '@common/decorator';
-import { CreateUserDto, FindByIdDto, GetUserDto, UserServiceMethods } from '@common/dto';
+import {
+  CreateUserDto,
+  FindByIdDto,
+  GetUserDto,
+  MetadataServiceMethods,
+  UserServiceMethods,
+} from '@common/dto';
 import { MerchantServiceMethods } from '@common/dto/merchant.dto';
 import { User, UserSchema } from '@common/schema/user.schema';
 import { EEntityMetadata, EUser, getServiceToken, parsePath } from '@common/utils';
 import { BadRequestException, ForbiddenException, Inject } from '@nestjs/common';
-import { MetadataServiceMethods } from '@shared/dto';
 
 @AppService()
 export class UserService extends CoreService<User> implements UserServiceMethods {

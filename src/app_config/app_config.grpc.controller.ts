@@ -1,6 +1,6 @@
-import { GrpcHandler } from '@app/decorator';
-import { FindDto } from '@app/dto';
+import { GrpcHandler } from '@common/decorator';
 import { AppConfigService } from './app_config.service';
+import { FindDto } from '@common/dto';
 
 @GrpcHandler()
 export class AppConfigGrpcController {

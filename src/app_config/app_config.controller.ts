@@ -1,8 +1,11 @@
-import { AppController } from '@app/decorator';
+import { EAllowedUser } from '@common/utils';
 import { AppConfigService } from './app_config.service';
-import { EAllowedUser } from '@app/helper';
+import { AppController } from '@common/decorator';
+import { CoreController } from '@common/core/core.controller';
 
-@AppController('admin-api/app-config', [EAllowedUser.Admin])
-export class AppConfigController {
-  constructor(private readonly service: AppConfigService) {}
+@AppController('app-config', [EAllowedUser.Admin])
+export class AppConfigController extends CoreController {
+  constructor(service: AppConfigService) {
+    super(service);
+  }
 }

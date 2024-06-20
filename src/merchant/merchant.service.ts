@@ -1,6 +1,11 @@
 import { CoreService } from '@common/core/core.service';
 import { AppService } from '@common/decorator';
-import { AppConfigServiceMethods, FindByIdDto, UserServiceMethods } from '@common/dto';
+import {
+  AppConfigServiceMethods,
+  FindByIdDto,
+  MetadataServiceMethods,
+  UserServiceMethods,
+} from '@common/dto';
 import { CreateMerchantDto, MerchantServiceMethods } from '@common/dto/merchant.dto';
 import { Merchant, MerchantSchema } from '@common/schema';
 import {
@@ -11,12 +16,7 @@ import {
   getPeriodDate,
   isPeriodExceed,
 } from '@common/utils';
-import {
-  AddressServiceMethods,
-  CategoryServiceMethods,
-  MailServiceMethods,
-  MetadataServiceMethods,
-} from '@shared/dto';
+import { AddressServiceMethods, CategoryServiceMethods, MailServiceMethods } from '@shared/dto';
 
 @AppService()
 export class MerchantService extends CoreService<Merchant> implements MerchantServiceMethods {

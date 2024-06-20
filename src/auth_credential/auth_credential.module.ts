@@ -1,12 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AuthCredentialService } from './auth_credential.service';
-//import { getRepositoryProviders } from '@app/helper';
-import { AuthCredential, AuthCredentialSchema } from '@app/schema';
+import { AuthCredentialGrpcController } from './auth_credential.grpc.controller';
 
 @Module({
-  providers: [
-    AuthCredentialService,
-    // ...getRepositoryProviders([{ name: AuthCredential.name, schema: AuthCredentialSchema }]),
-  ],
+  controllers: [AuthCredentialGrpcController],
+  providers: [AuthCredentialService],
+  exports: [AuthCredentialService],
 })
 export class AuthCredentialModule {}
