@@ -1,14 +1,10 @@
 import { CoreController } from '@common/core/core.controller';
-import { AppController } from '@common/decorator';
 import { Get } from '@nestjs/common';
-import { AppService } from './admin_app.service';
+import { AdminAppService } from './admin_app.service';
+import { AppController } from '@common/decorator/app_controller.decorator';
 
 @AppController()
-export class AdminAppController extends CoreController {
-  constructor(service: AppService) {
-    super(service);
-  }
-
+export class AdminAppController extends CoreController<AdminAppService> {
   @Get()
   getHello(): string {
     return 'hello';

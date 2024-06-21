@@ -1,15 +1,10 @@
 import { AppService } from '@common/decorator/app_service.decorator';
-import { MetadataService } from '@common/shared';
-import { Inject, forwardRef } from '@nestjs/common';
-import { MerchantService } from 'src/merchant/merchant.service';
-import { UserService } from 'src/user/user.service';
+import { MerchantSharedServiceMethods } from '@common/dto/merchant.dto';
+import { UserSharedServiceMethods } from '@common/dto/user.dto';
+import { MetadataService } from '@common/shared/metadata/metadata.service';
 
 @AppService()
 export class AdminMetadataService extends MetadataService {
-  constructor(
-    @Inject(forwardRef(() => UserService)) protected userService,
-    @Inject(forwardRef(() => MerchantService)) protected merchantService,
-  ) {
-    super();
-  }
+  protected userService: UserSharedServiceMethods;
+  protected merchantService: MerchantSharedServiceMethods;
 }

@@ -1,22 +1,15 @@
 import { CoreService } from '@common/core/core.service';
-import { AppService } from '@common/decorator';
-import {
-  AppConfigServiceMethods,
-  FindByIdDto,
-  MetadataServiceMethods,
-  UserServiceMethods,
-} from '@common/dto';
+import { AppService } from '@common/decorator/app_service.decorator';
+import { AppConfigServiceMethods } from '@common/dto/app_config.dto';
+import { FindByIdDto } from '@common/dto/core.dto';
 import { CreateMerchantDto, MerchantServiceMethods } from '@common/dto/merchant.dto';
-import { Merchant, MerchantSchema } from '@common/schema';
-import {
-  ECategory,
-  EEntityMetadata,
-  EMail,
-  EStatus,
-  getPeriodDate,
-  isPeriodExceed,
-} from '@common/utils';
-import { AddressServiceMethods, CategoryServiceMethods, MailServiceMethods } from '@shared/dto';
+import { MetadataServiceMethods } from '@common/dto/metadata.dto';
+import { UserServiceMethods } from '@common/dto/user.dto';
+import { getPeriodDate, isPeriodExceed } from '@common/utils/datetime';
+import { ECategory, EEntityMetadata, EMail, EStatus } from '@common/utils/enum';
+import { AddressServiceMethods } from '@shared/dto/address.dto';
+import { CategoryServiceMethods } from '@shared/dto/category.dto';
+import { MailServiceMethods } from '@shared/dto/mail.dto';
 
 @AppService()
 export class MerchantService extends CoreService<Merchant> implements MerchantServiceMethods {
@@ -26,10 +19,6 @@ export class MerchantService extends CoreService<Merchant> implements MerchantSe
   private readonly addressService: AddressServiceMethods;
   private readonly userService: UserServiceMethods;
   private readonly categoryService: CategoryServiceMethods;
-
-  constructor() {
-    super(Merchant.name, MerchantSchema);
-  }
 
   async getMerchant(dto: FindByIdDto) {
     return await this.repository.findById(dto);

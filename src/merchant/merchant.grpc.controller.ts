@@ -1,6 +1,6 @@
-import { GrpcHandler } from '@common/decorator';
+import { GrpcHandler } from '@common/decorator/grpc_handler.decorator';
 import { MerchantService } from './merchant.service';
-import { FindByIdDto } from '@common/dto';
+import { FindByIdDto } from '@common/dto/core.dto';
 
 @GrpcHandler()
 export class MerchantGrpcController {

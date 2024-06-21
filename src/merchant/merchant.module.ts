@@ -8,18 +8,22 @@ import { UserModule } from 'src/user/user.module';
 import { MerchantController } from './merchant.controller';
 import { MerchantService } from './merchant.service';
 import { MerchantGrpcController } from './merchant.grpc.controller';
+import { MongooseModule } from '@nestjs/mongoose';
+import { Merchant, MerchantSchema } from '@common/schema/merchant.schema';
+import { getRepositoryProvider } from '@common/utils/misc';
 
 @Module({
   imports: [
+    MongooseModule.forFeature([{ name: Merchant.name, schema: MerchantSchema }]),
     AppConfigModule,
     MailModule,
     AddressModule,
     CategoryModule,
-    forwardRef(() => MetadataModule),
-    forwardRef(() => UserModule),
+    MetadataModule,
+    UserModule,
   ],
   controllers: [MerchantController, MerchantGrpcController],
-  providers: [MerchantService],
+  providers: [MerchantService, getRepositoryProvider(Merchant.name)],
   exports: [MerchantService],
 })
 export class MerchantModule {}
