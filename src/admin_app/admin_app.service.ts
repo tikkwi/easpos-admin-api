@@ -1,40 +1,37 @@
-import { ContextService } from '@common/core/context/context.service';
-import { TransactionService } from '@common/core/transaction/transaction.service';
-import { AppService } from '@common/decorator/app_service.decorator';
 import { AdminAppServiceMethods } from '@common/dto/admin_app.dto';
-import { AppConfigServiceMethods } from '@common/dto/app_config.dto';
-import { AuthCredentialServiceMethods } from '@common/dto/auth_credential.dto';
 import { BaseDto } from '@common/dto/core.dto';
-import { MerchantServiceMethods } from '@common/dto/merchant.dto';
-import { UserServiceMethods } from '@common/dto/user.dto';
 import { decrypt } from '@common/utils/encrypt';
 import { EAuthCredential, EUser } from '@common/utils/enum';
 import { parsePath } from '@common/utils/regex';
 import {
   BadRequestException,
   ForbiddenException,
+  Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
+import { AppConfigService } from 'src/app_config/app_config.service';
+import { AuthCredentialService } from 'src/auth_credential/auth_credential.service';
+import { MerchantService } from 'src/merchant/merchant.service';
+import { UserService } from 'src/user/user.service';
 
-@AppService()
+@Injectable()
 export class AdminAppService implements AdminAppServiceMethods {
-  protected readonly transaction: TransactionService;
-  protected readonly context: ContextService;
-  private readonly configService: AppConfigServiceMethods;
-  private readonly userService: UserServiceMethods;
-  private readonly merchantService: MerchantServiceMethods;
-  private readonly appCredentialService: AuthCredentialServiceMethods;
+  constructor(
+    private readonly configService: AppConfigService,
+    private readonly userService: UserService,
+    private readonly merchantService: MerchantService,
+    private readonly appCredentialService: AuthCredentialService,
+  ) {}
 
   async getAuthData({ request }: BaseDto) {
     let user: AuthUser,
       merchant: Merchant,
       basicAuth: any,
       isSubActive = false;
-    const { data: config } = await this.configService.getConfig({ request });
+    const { data: config } = await this.configService.getConfig();
     const service: any = parsePath(request.originalUrl)[2];
     if (Object.values(EAuthCredential).includes(service)) {
       const { data } = await this.appCredentialService.getAuthCredential({
-        request,
         type: service,
       });
       if (!data) throw new InternalServerErrorException();

@@ -1,16 +1,22 @@
-import { CoreService } from '@common/core/core.service';
+import { REPOSITORY } from '@common/constant';
+import { Repository } from '@common/core/repository';
 import { FindByIdDto } from '@common/dto/core.dto';
-import { MerchantSharedServiceMethods } from '@common/dto/merchant.dto';
-import { MetadataSharedServiceMethods } from '@common/dto/metadata.dto';
 import { CreateUserDto, GetUserDto, UserServiceMethods } from '@common/dto/user.dto';
 import { User } from '@common/schema/user.schema';
+import { MetadataService } from '@common/shared/metadata/metadata.service';
 import { EEntityMetadata, EUser } from '@common/utils/enum';
 import { parsePath } from '@common/utils/regex';
-import { BadRequestException, ForbiddenException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Inject, forwardRef } from '@nestjs/common';
+import { MerchantService } from 'src/merchant/merchant.service';
+import { AdminMetadataService } from 'src/metadata/admin_metadata.service';
 
-export class UserService extends CoreService<User> implements UserServiceMethods {
-  protected merchantService: MerchantSharedServiceMethods;
-  protected metadataService: MetadataSharedServiceMethods;
+export class UserService implements UserServiceMethods {
+  constructor(
+    @Inject(REPOSITORY) private readonly repository: Repository<User>,
+    @Inject(forwardRef(() => MerchantService)) private readonly merchantService: MerchantService,
+    @Inject(forwardRef(() => AdminMetadataService))
+    private readonly metadataService: AdminMetadataService,
+  ) {}
 
   async getUser({ id, userName, mail, lean = true }: GetUserDto) {
     if (!id && !userName && !mail) throw new BadRequestException('Missing filter');

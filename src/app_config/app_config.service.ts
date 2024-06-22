@@ -1,10 +1,13 @@
-import { CoreService } from '@common/core/core.service';
-import { AppService } from '@common/decorator/app_service.decorator';
+import { REPOSITORY } from '@common/constant';
+import { Repository } from '@common/core/repository';
 import { AppConfigServiceMethods } from '@common/dto/app_config.dto';
+import { Inject, Injectable } from '@nestjs/common';
 
-@AppService()
-export class AppConfigService extends CoreService<AppConfig> implements AppConfigServiceMethods {
-  async getConfig(_) {
+@Injectable()
+export class AppConfigService implements AppConfigServiceMethods {
+  constructor(@Inject(REPOSITORY) private readonly repository: Repository<AppConfig>) {}
+
+  async getConfig() {
     return await this.repository.findOne({ filter: {} });
   }
 }

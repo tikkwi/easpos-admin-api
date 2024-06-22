@@ -1,31 +1,36 @@
-import { CoreService } from '@common/core/core.service';
-import { AppService } from '@common/decorator/app_service.decorator';
-import { AppConfigServiceMethods } from '@common/dto/app_config.dto';
+import { REPOSITORY } from '@common/constant';
+import { Repository } from '@common/core/repository';
 import { FindByIdDto } from '@common/dto/core.dto';
 import { CreateMerchantDto, MerchantServiceMethods } from '@common/dto/merchant.dto';
-import { MetadataServiceMethods } from '@common/dto/metadata.dto';
-import { UserServiceMethods } from '@common/dto/user.dto';
 import { getPeriodDate, isPeriodExceed } from '@common/utils/datetime';
 import { ECategory, EEntityMetadata, EMail, EStatus } from '@common/utils/enum';
-import { AddressServiceMethods } from '@shared/address/address.dto';
-import { CategoryServiceMethods } from '@shared/category/category.dto';
-import { MailServiceMethods } from '@shared/mail/mail.dto';
+import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { AddressService } from '@shared/address/address.service';
+import { CategoryService } from '@shared/category/category.service';
+import { MailService } from '@shared/mail/mail.service';
+import { AppConfigService } from 'src/app_config/app_config.service';
+import { AdminMetadataService } from 'src/metadata/admin_metadata.service';
+import { UserService } from 'src/user/user.service';
 
-@AppService()
-export class MerchantService extends CoreService<Merchant> implements MerchantServiceMethods {
-  private readonly appConfigService: AppConfigServiceMethods;
-  private readonly metadataService: MetadataServiceMethods;
-  private readonly mailService: MailServiceMethods;
-  private readonly addressService: AddressServiceMethods;
-  private readonly userService: UserServiceMethods;
-  private readonly categoryService: CategoryServiceMethods;
+@Injectable()
+export class MerchantService implements MerchantServiceMethods {
+  constructor(
+    @Inject(REPOSITORY) private readonly repository: Repository<Merchant>,
+    private readonly appConfigService: AppConfigService,
+    @Inject(forwardRef(() => AdminMetadataService))
+    private readonly metadataService: AdminMetadataService,
+    private readonly mailService: MailService,
+    private readonly addressService: AddressService,
+    @Inject(forwardRef(() => UserService)) private readonly userService: UserService,
+    private readonly categoryService: CategoryService,
+  ) {}
 
   async getMerchant(dto: FindByIdDto) {
     return await this.repository.findById(dto);
   }
 
   async merchantWithAuth({ id, request }: FindByIdDto) {
-    const { data: appConfig } = await this.appConfigService.getConfig({ request });
+    const { data: appConfig } = await this.appConfigService.getConfig();
     const { data: merchant } = await this.repository.findById({
       id,
       options: { populate: 'activePurchase' },
@@ -58,7 +63,6 @@ export class MerchantService extends CoreService<Merchant> implements MerchantSe
         type: EMail.MerchantSubscriptionExpire,
         expirePayload: subEnd ? { expireDate: subUntil } : undefined,
         preExpirePayload: subEnd ? undefined : { expireDate: subUntil },
-        request,
       });
     return { data: merchant, isSubActive };
   }
@@ -76,14 +80,13 @@ export class MerchantService extends CoreService<Merchant> implements MerchantSe
       entity: EEntityMetadata.Merchant,
       request,
     });
-    const { data: address } = await this.addressService.createAddress({ ...addressDto, request });
+    const { data: address } = await this.addressService.createAddress(addressDto);
 
     const { data: type } = category.id
       ? await this.categoryService.getCategory({ id: category.id, request })
       : await this.categoryService.createCategory({
           name: category.name!,
           type: ECategory.Merchant,
-          request,
         });
 
     const { data: merchant } = await this.repository.create({
