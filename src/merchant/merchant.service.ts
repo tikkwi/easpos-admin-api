@@ -7,9 +7,9 @@ import { MetadataServiceMethods } from '@common/dto/metadata.dto';
 import { UserServiceMethods } from '@common/dto/user.dto';
 import { getPeriodDate, isPeriodExceed } from '@common/utils/datetime';
 import { ECategory, EEntityMetadata, EMail, EStatus } from '@common/utils/enum';
-import { AddressServiceMethods } from '@shared/dto/address.dto';
-import { CategoryServiceMethods } from '@shared/dto/category.dto';
-import { MailServiceMethods } from '@shared/dto/mail.dto';
+import { AddressServiceMethods } from '@shared/address/address.dto';
+import { CategoryServiceMethods } from '@shared/category/category.dto';
+import { MailServiceMethods } from '@shared/mail/mail.dto';
 
 @AppService()
 export class MerchantService extends CoreService<Merchant> implements MerchantServiceMethods {

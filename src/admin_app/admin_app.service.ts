@@ -31,7 +31,7 @@ export class AdminAppService implements AdminAppServiceMethods {
       basicAuth: any,
       isSubActive = false;
     const { data: config } = await this.configService.getConfig({ request });
-    const service: any = parsePath(request.path)[2];
+    const service: any = parsePath(request.originalUrl)[2];
     if (Object.values(EAuthCredential).includes(service)) {
       const { data } = await this.appCredentialService.getAuthCredential({
         request,
