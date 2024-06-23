@@ -37,7 +37,7 @@ export class AdminAppService implements AdminAppServiceMethods {
       if (!data) throw new InternalServerErrorException();
       basicAuth = { userName: data.userName, password: data.password };
     }
-    if (!config) throw new ForbiddenException('Config not found');
+    // if (!config) throw new ForbiddenException('Config not found');
     if (request.session.user) {
       const { id } = await decrypt(request.session.user);
       if (!id) throw new BadRequestException("Don't found user");
