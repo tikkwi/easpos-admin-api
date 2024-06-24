@@ -1,9 +1,12 @@
 import { REPOSITORY } from '@common/constant';
 import { Repository } from '@common/core/repository';
-import { FindByIdDto } from '@common/dto/core.dto';
-import { CreateUserDto, GetUserDto, UserServiceMethods } from '@common/dto/user.dto';
+import {
+  CreateUserDto,
+  GetUserDto,
+  UserServiceMethods,
+  UserWihAuthDto,
+} from '@common/dto/user.dto';
 import { User } from '@common/schema/user.schema';
-import { MetadataService } from '@common/shared/metadata/metadata.service';
 import { EEntityMetadata, EUser } from '@common/utils/enum';
 import { parsePath } from '@common/utils/regex';
 import { BadRequestException, ForbiddenException, Inject, forwardRef } from '@nestjs/common';
@@ -21,15 +24,15 @@ export class UserService implements UserServiceMethods {
   async getUser({ id, userName, mail, lean = true }: GetUserDto) {
     if (!id && !userName && !mail) throw new BadRequestException('Missing filter');
     return await this.repository.findOne({
-      filter: { userName, mail },
+      filter: { $or: [{ _id: id }, { userName }, { mail }] },
       options: { lean },
     });
   }
 
-  async userWithAuth({ id, request }: FindByIdDto) {
+  async userWithAuth({ id, url }: UserWihAuthDto) {
     return {
       data: await this.repository.custom(async (model) => {
-        const service = parsePath(request.originalUrl)[1];
+        const service = parsePath(url)[1];
         return {
           data: await model.aggregate([
             { $match: { _id: id } },
@@ -79,7 +82,7 @@ export class UserService implements UserServiceMethods {
                   { $unwind: '$permissions' },
                   {
                     $match: {
-                      'permissions.services': { $eleMatch: request.originalUrl },
+                      'permissions.services': { $eleMatch: url },
                     },
                   },
                 ],
@@ -114,14 +117,23 @@ export class UserService implements UserServiceMethods {
     };
   }
 
-  async createUser({ merchantId, metadata: metadataValue, type, request, ...dto }: CreateUserDto) {
-    let isForbidden = false;
-    if (request.user) {
-      if (request.user.type === EUser.Merchant) isForbidden = type === EUser.Admin;
-    } else isForbidden = type !== EUser.Merchant;
-    if (isForbidden) throw new ForbiddenException();
-    const { data: merchant } = await this.merchantService.getMerchant({ id: merchantId, request });
-    if (!merchant) throw new BadRequestException('Merchant not found');
+  async createUser({ authUser, metadata: metadataValue, type, merchantId, ...dto }: CreateUserDto) {
+    const isAdmin = type === EUser.Admin;
+
+    if (
+      (isAdmin && authUser?.type !== EUser.Admin) ||
+      (authUser?.type === EUser.Customer && type !== EUser.Customer)
+    )
+      throw new ForbiddenException();
+
+    if (!isAdmin && !authUser.merchant && !merchantId)
+      throw new BadRequestException('Merchant is required');
+
+    const merchant = isAdmin
+      ? undefined
+      : authUser.merchant ?? (await this.merchantService.getMerchant({ id: merchantId })).data;
+    if (!isAdmin && !merchant) throw new BadRequestException('Merchant not found');
+
     await this.metadataService.validateMetaValue({
       entity:
         type === EUser.Merchant
@@ -130,8 +142,8 @@ export class UserService implements UserServiceMethods {
             ? EEntityMetadata.Admin
             : EEntityMetadata.Customer,
       value: metadataValue,
-      request,
     });
+
     return await this.repository.create({
       ...dto,
       type,

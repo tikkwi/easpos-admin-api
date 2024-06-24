@@ -8,7 +8,7 @@ export class MerchantController {
   constructor(private readonly service: MerchantService) {}
 
   @Post('create')
-  async createMerchant(@Req() request: AppRequest, @Body() dto: CreateMerchantDto) {
-    return this.service.createMerchant({ ...dto, request });
+  async createMerchant(@Body() dto: CreateMerchantDto) {
+    return this.service.createMerchant(dto);
   }
 }

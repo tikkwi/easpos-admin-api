@@ -29,7 +29,7 @@ export class MerchantService implements MerchantServiceMethods {
     return await this.repository.findById(dto);
   }
 
-  async merchantWithAuth({ id, request }: FindByIdDto) {
+  async merchantWithAuth({ id }: FindByIdDto) {
     const { data: appConfig } = await this.appConfigService.getConfig();
     const { data: merchant } = await this.repository.findById({
       id,
@@ -67,23 +67,15 @@ export class MerchantService implements MerchantServiceMethods {
     return { data: merchant, isSubActive };
   }
 
-  async createMerchant({
-    userDto,
-    metadata,
-    addressDto,
-    category,
-    request,
-    ...dto
-  }: CreateMerchantDto) {
+  async createMerchant({ userDto, metadata, addressDto, category, ...dto }: CreateMerchantDto) {
     await this.metadataService.validateMetaValue({
       value: metadata,
       entity: EEntityMetadata.Merchant,
-      request,
     });
     const { data: address } = await this.addressService.createAddress(addressDto);
 
     const { data: type } = category.id
-      ? await this.categoryService.getCategory({ id: category.id, request })
+      ? await this.categoryService.getCategory({ id: category.id })
       : await this.categoryService.createCategory({
           name: category.name!,
           type: ECategory.Merchant,
@@ -100,8 +92,8 @@ export class MerchantService implements MerchantServiceMethods {
     const { data: user } = await this.userService.createUser({
       ...userDto,
       merchantId: merchant.id,
-      request,
     });
+
     const { data } = await this.repository.findAndUpdate({
       id: merchant.id,
       update: { owner: user },
