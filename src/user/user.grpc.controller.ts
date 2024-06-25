@@ -1,5 +1,5 @@
 import { GrpcHandler } from '@common/decorator/grpc_handler.decorator';
-import { GetUserDto, UserWihAuthDto } from '@common/dto/user.dto';
+import { CreateUserDto, GetUserDto, UserWihAuthDto } from '@common/dto/user.dto';
 import { UserService } from './user.service';
 
 @GrpcHandler()
@@ -12,5 +12,9 @@ export class UserGrpcController {
 
   async userWithAuth(dto: UserWihAuthDto) {
     return this.service.userWithAuth(dto);
+  }
+
+  async createUser(dto: CreateUserDto) {
+    return this.service.createUser(dto);
   }
 }
