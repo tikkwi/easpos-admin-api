@@ -14,7 +14,7 @@ export class AdminAppService implements AdminAppServiceMethods {
     private readonly configService: AppConfigService,
     private readonly userService: UserService,
     private readonly merchantService: MerchantService,
-    private readonly appCredentialService: AuthCredentialService,
+    private readonly authCredentialService: AuthCredentialService,
   ) {}
 
   async getAuthData({ url, id }: GetAuthDataDto) {
@@ -25,14 +25,8 @@ export class AdminAppService implements AdminAppServiceMethods {
 
     const { data: config } = await this.configService.getConfig();
 
-    const service: any = parsePath(url)[2];
-    if (Object.values(EAuthCredential).includes(service)) {
-      const { data } = await this.appCredentialService.getAuthCredential({
-        type: service,
-      });
-      if (!data) throw new InternalServerErrorException();
-      basicAuth = { userName: data.userName, password: data.password };
-    }
+    const { data: authCred } = await this.authCredentialService.getAuthCredential({ url });
+    if (authCred) basicAuth = { userName: authCred.userName, password: authCred.password };
 
     if (id) {
       ({ data: user } = await this.userService.userWithAuth({ id, url }));
