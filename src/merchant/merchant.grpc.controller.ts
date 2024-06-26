@@ -18,4 +18,8 @@ export class MerchantGrpcController {
   async createMerchant(dto: CreateMerchantDto) {
     return this.service.createMerchant(dto);
   }
+
+  tmpTst() {
+    return this.service.tmpTst();
+  }
 }

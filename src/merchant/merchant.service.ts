@@ -29,6 +29,10 @@ export class MerchantService implements MerchantServiceMethods {
     private readonly categoryService: CategoryService,
   ) {}
 
+  tmpTst() {
+    return { data: 'Responsed..' };
+  }
+
   async getMerchant(dto: FindByIdDto) {
     return await this.repository.findById(dto);
   }
