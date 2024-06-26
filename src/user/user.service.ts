@@ -117,7 +117,15 @@ export class UserService implements UserServiceMethods {
     };
   }
 
-  async createUser({ authUser, metadata: metadataValue, type, merchantId, ...dto }: CreateUserDto) {
+  //TODO: user permissions
+  async createUser({
+    authUser,
+    metadata: metadataValue,
+    type,
+    merchantId,
+    permissions,
+    ...dto
+  }: CreateUserDto) {
     const isAdmin = type === EUser.Admin;
 
     if (
@@ -126,12 +134,11 @@ export class UserService implements UserServiceMethods {
     )
       throw new ForbiddenException();
 
-    if (!isAdmin && !authUser.merchant && !merchantId)
-      throw new BadRequestException('Merchant is required');
+    if (!isAdmin && !merchantId) throw new BadRequestException('Merchant is required');
 
-    const merchant = isAdmin
+    const merchant: any = isAdmin
       ? undefined
-      : authUser.merchant ?? (await this.merchantService.getMerchant({ id: merchantId })).data;
+      : merchantId ?? (await this.merchantService.getMerchant({ id: merchantId })).data;
     if (!isAdmin && !merchant) throw new BadRequestException('Merchant not found');
 
     await this.metadataService.validateMetaValue({

@@ -12,7 +12,9 @@ export class AuthCredentialService implements AuthCredentialServiceMethods {
   constructor(@Inject(REPOSITORY) private readonly repository: Repository<AuthCredential>) {}
 
   async getAuthCredential({ url }: GetAuthCredentialDto) {
-    const { data } = await this.repository.find({ filter: { authPaths: { $elemMatch: url } } });
+    const { data } = await this.repository.find({
+      filter: { authPaths: { $elemMatch: { $eq: url } } },
+    });
     if (data.length > 1) throw new InternalServerErrorException();
     return { data: data[0] };
   }

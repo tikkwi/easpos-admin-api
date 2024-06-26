@@ -14,7 +14,7 @@ import { UserModule } from 'src/user/user.module';
     forwardRef(() => MerchantModule),
     forwardRef(() => UserModule),
   ],
-  providers: [AdminMetadataService, getRepositoryProvider(Metadata.name)],
+  providers: [AdminMetadataService, getRepositoryProvider({ name: Metadata.name })],
   exports: [AdminMetadataService],
 })
 export class AdminMetadataModule {}

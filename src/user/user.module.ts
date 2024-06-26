@@ -15,7 +15,7 @@ import { AdminMetadataModule } from 'src/metadata/admin_metadata.module';
     forwardRef(() => AdminMetadataModule),
   ],
   controllers: [UserController, UserGrpcController],
-  providers: [UserService, getRepositoryProvider(User.name)],
+  providers: [UserService, getRepositoryProvider({ name: User.name })],
   exports: [UserService],
 })
 export class UserModule {}

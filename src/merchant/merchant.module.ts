@@ -23,7 +23,7 @@ import { AdminMetadataModule } from 'src/metadata/admin_metadata.module';
     UserModule,
   ],
   controllers: [MerchantController, MerchantGrpcController],
-  providers: [MerchantService, getRepositoryProvider(Merchant.name)],
+  providers: [MerchantService, getRepositoryProvider({ name: Merchant.name })],
   exports: [MerchantService],
 })
 export class MerchantModule {}

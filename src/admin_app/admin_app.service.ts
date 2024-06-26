@@ -1,8 +1,8 @@
 import { AdminAppServiceMethods, GetAuthDataDto } from '@common/dto/admin_app.dto';
 import { AuthUser } from '@common/dto/core.dto';
-import { EAuthCredential, EUser } from '@common/utils/enum';
-import { parsePath } from '@common/utils/regex';
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Merchant } from '@common/schema/merchant.schema';
+import { EUser } from '@common/utils/enum';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { AppConfigService } from 'src/app_config/app_config.service';
 import { AuthCredentialService } from 'src/auth_credential/auth_credential.service';
 import { MerchantService } from 'src/merchant/merchant.service';
@@ -37,6 +37,7 @@ export class AdminAppService implements AdminAppServiceMethods {
         }));
       }
     }
+
     return {
       config,
       user,

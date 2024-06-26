@@ -1,13 +1,16 @@
-import { REPOSITORY } from '@common/constant';
+import { C_SESSION, REPOSITORY } from '@common/constant';
+import { ContextService } from '@common/core/context/context.service';
 import { Repository } from '@common/core/repository';
 import { FindByIdDto } from '@common/dto/core.dto';
 import { CreateMerchantDto, MerchantServiceMethods } from '@common/dto/merchant.dto';
+import { Merchant } from '@common/schema/merchant.schema';
 import { getPeriodDate, isPeriodExceed } from '@common/utils/datetime';
 import { ECategory, EEntityMetadata, EMail, EStatus } from '@common/utils/enum';
 import { Inject, Injectable, forwardRef } from '@nestjs/common';
 import { AddressService } from '@shared/address/address.service';
 import { CategoryService } from '@shared/category/category.service';
 import { MailService } from '@shared/mail/mail.service';
+import { Document } from 'mongoose';
 import { AppConfigService } from 'src/app_config/app_config.service';
 import { AdminMetadataService } from 'src/metadata/admin_metadata.service';
 import { UserService } from 'src/user/user.service';
@@ -15,6 +18,7 @@ import { UserService } from 'src/user/user.service';
 @Injectable()
 export class MerchantService implements MerchantServiceMethods {
   constructor(
+    private readonly context: ContextService,
     @Inject(REPOSITORY) private readonly repository: Repository<Merchant>,
     private readonly appConfigService: AppConfigService,
     @Inject(forwardRef(() => AdminMetadataService))
@@ -67,7 +71,13 @@ export class MerchantService implements MerchantServiceMethods {
     return { data: merchant, isSubActive };
   }
 
-  async createMerchant({ userDto, metadata, addressDto, category, ...dto }: CreateMerchantDto) {
+  async createMerchant({
+    user: userDto,
+    metadata,
+    address: addressDto,
+    category,
+    ...dto
+  }: CreateMerchantDto) {
     await this.metadataService.validateMetaValue({
       value: metadata,
       entity: EEntityMetadata.Merchant,
@@ -77,27 +87,28 @@ export class MerchantService implements MerchantServiceMethods {
     const { data: type } = category.id
       ? await this.categoryService.getCategory({ id: category.id })
       : await this.categoryService.createCategory({
-          name: category.name!,
+          name: category.name,
           type: ECategory.Merchant,
         });
 
-    const { data: merchant } = await this.repository.create({
-      ...dto,
-      status: EStatus.Pending,
-      address,
-      type,
-      metadata,
-    });
+    const merchant: Document<unknown, unknown, Merchant> & Merchant = await this.repository.custom(
+      async (model) =>
+        new model({
+          ...dto,
+          status: EStatus.Pending,
+          address,
+          type,
+          metadata,
+        }),
+    );
 
     const { data: user } = await this.userService.createUser({
       ...userDto,
       merchantId: merchant.id,
     });
 
-    const { data } = await this.repository.findAndUpdate({
-      id: merchant.id,
-      update: { owner: user },
-    });
-    return { data };
+    merchant.owner = user;
+
+    return { data: await merchant.save({ session: this.context.get(C_SESSION) }) };
   }
 }
