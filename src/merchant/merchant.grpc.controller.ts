@@ -2,6 +2,8 @@ import { GrpcHandler } from '@common/decorator/grpc_handler.decorator';
 import { MerchantService } from './merchant.service';
 import { FindByIdDto } from '@common/dto/core.dto';
 import { CreateMerchantDto } from '@common/dto/merchant.dto';
+import { UseInterceptors } from '@nestjs/common';
+import { TransactionInterceptor } from '@common/interceptors/transaction.interceptor';
 
 @GrpcHandler()
 export class MerchantGrpcController {

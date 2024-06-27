@@ -1,5 +1,4 @@
 import { ADMIN_APP } from '@common/constant';
-import { CoreModule } from '@common/core/core.module';
 import { TransformRequestMiddleware } from '@common/middleware/transform_request.middleware';
 import { getServiceToken } from '@common/utils/misc';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
@@ -11,10 +10,13 @@ import { AuthCredentialModule } from './auth_credential/auth_credential.module';
 import { MerchantModule } from './merchant/merchant.module';
 import { AdminMetadataModule } from './metadata/admin_metadata.module';
 import { UserModule } from './user/user.module';
+import { CoreHttpModule } from '@common/core/core_http.module';
+import { CoreModule } from '@common/core/core.module';
 
 @Module({
   imports: [
     CoreModule,
+    CoreHttpModule,
     AdminAppModule,
     AppConfigModule,
     AuthCredentialModule,
@@ -25,7 +27,7 @@ import { UserModule } from './user/user.module';
   ],
   providers: [{ provide: getServiceToken(ADMIN_APP), useExisting: AdminAppService }],
 })
-export class AppModule implements NestModule {
+export class HttpModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer.apply(TransformRequestMiddleware).forRoutes('*');
   }

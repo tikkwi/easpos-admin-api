@@ -6,7 +6,7 @@ import { CreateMerchantDto, MerchantServiceMethods } from '@common/dto/merchant.
 import { Merchant } from '@common/schema/merchant.schema';
 import { getPeriodDate, isPeriodExceed } from '@common/utils/datetime';
 import { ECategory, EEntityMetadata, EMail, EStatus } from '@common/utils/enum';
-import { Inject, Injectable, forwardRef } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { AddressService } from '@shared/address/address.service';
 import { CategoryService } from '@shared/category/category.service';
 import { MailService } from '@shared/mail/mail.service';
@@ -29,8 +29,8 @@ export class MerchantService implements MerchantServiceMethods {
     private readonly categoryService: CategoryService,
   ) {}
 
-  tmpTst() {
-    return { data: 'Responsed..' };
+  tmpTst(): { data: string } {
+    return { data: 'You hi me..' };
   }
 
   async getMerchant(dto: FindByIdDto) {
@@ -112,6 +112,8 @@ export class MerchantService implements MerchantServiceMethods {
     });
 
     merchant.owner = user;
+
+    throw new BadRequestException('you bad..');
 
     return { data: await merchant.save({ session: this.context.get(C_SESSION) }) };
   }
