@@ -1,5 +1,7 @@
 import { REPOSITORY } from '@common/constant';
 import { Repository } from '@common/core/repository';
+import { FindByIdDto } from '@common/dto/core.dto';
+import { AuthUser, Period } from '@common/dto/entity.dto';
 import {
   CreateUserDto,
   GetUserDto,
@@ -7,9 +9,10 @@ import {
   UserWihAuthDto,
 } from '@common/dto/user.dto';
 import { User } from '@common/schema/user.schema';
+import { getPeriodDate } from '@common/utils/datetime';
 import { EEntityMetadata, EUser } from '@common/utils/enum';
-import { parsePath } from '@common/utils/regex';
 import { BadRequestException, ForbiddenException, Inject, forwardRef } from '@nestjs/common';
+import { pick } from 'lodash';
 import { MerchantService } from 'src/merchant/merchant.service';
 import { AdminMetadataService } from 'src/metadata/admin_metadata.service';
 
@@ -29,91 +32,38 @@ export class UserService implements UserServiceMethods {
     });
   }
 
-  async userWithAuth({ id, url }: UserWihAuthDto) {
+  async getAuthUser({ id }: FindByIdDto): Promise<{ data: AuthUser }> {
+    const { data: user } = await this.repository.findById({
+      id,
+      options: {
+        populate: [
+          { path: 'merchant', populate: 'activePurchase' },
+          { path: 'servicePermissions', populate: 'permissions' },
+        ],
+      },
+    });
+    const subEndPeriod = user.merchant.activePurchase?.subscriptionPeriod;
     return {
-      data: await this.repository.custom(async (model) => {
-        const service = parsePath(url)[1];
-        return {
-          data: await model.aggregate([
-            { $match: { _id: id } },
-            {
-              $lookup: {
-                from: 'userservicepermission',
-                localField: 'servicePermissions',
-                foreignField: '_id',
-                as: 'servicePermissions',
-              },
-            },
-            {
-              $lookup: {
-                from: 'merchantpurchase',
-                localField: 'merchant.activePurchase',
-                as: 'activePurchase',
-                foreignField: '_id',
-              },
-            },
-            {
-              $addFields: {
-                'merchant.activePurchase': '$activePurchase',
-                isOwner: { $eq: ['$_id', id] },
-              },
-            },
-            { $unwind: '$servicePermissions' },
-            { $match: { 'servicePermissions.service': service } },
-            {
-              $facet: {
-                serviceAllAllow: [
-                  {
-                    $match: {
-                      $or: [{ 'merchant.owner': id }, { 'servicePermissions.allowAll': true }],
-                    },
-                  },
-                ],
-                serviceAllNotAllow: [
-                  { $match: { 'servicePermissions.allowAll': false } },
-                  {
-                    $lookup: {
-                      from: 'userservicepermission',
-                      localField: 'servicePermissions.permissions',
-                      foreignField: '_id',
-                      as: 'permissions',
-                    },
-                  },
-                  { $unwind: '$permissions' },
-                  {
-                    $match: {
-                      'permissions.services': { $eleMatch: url },
-                    },
-                  },
-                ],
-              },
-            },
-            {
-              $project: {
-                merged: {
-                  $concatArrays: ['serviceAllAllow', 'serviceAllNotAllow'],
-                },
-              },
-            },
-            { $unwind: '$merged' },
-            { $replaceRoot: { newRoot: '$merged' } },
-            {
-              $group: {
-                _id: '$_id',
-                userName: { $first: '$userName' },
-                type: { $first: '$type' },
-                firstName: { $first: '$firstName' },
-                lastName: { $first: '$lastName' },
-                mail: { $first: '$mail' },
-                status: { $first: '$status' },
-                isOwner: { $first: '$isOwner' },
-                merchant: { $first: '$merchant' },
-                metadata: { $first: '$metadata' },
-              },
-            },
-          ])[0],
-        };
-      }),
+      data: {
+        ...pick(user, ['id', 'userName', 'firstName', 'type', 'firstName', 'lastName', 'mail']),
+        isOwner: user.merchant.owner.equals(id),
+        userStatus: user.status.status,
+        servicePermissions: user.servicePermissions?.reduce((acc, cur) => {
+          const permissions = cur.permissions ? { urls: [], auxillaryServices: [] } : undefined;
+          cur.permissions?.forEach(({ url, auxillaryService }) => {
+            permissions.urls.push(url);
+            permissions.auxillaryServices.push(auxillaryService);
+          });
+          acc.push({ service: cur.service, permissions });
+          return acc;
+        }, []),
+        merchant: user.merchant._id as any,
+        merchantSubType: user.merchant.subscriptionType,
+        merchantStatus: user.merchant.status.status,
+        merchantEndSub: subEndPeriod
+          ? getPeriodDate(subEndPeriod, user.merchant.activePurchase.createdAt)
+          : undefined,
+      },
     };
   }
 

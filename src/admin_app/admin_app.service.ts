@@ -1,5 +1,5 @@
 import { AdminAppServiceMethods, GetAuthDataDto } from '@common/dto/admin_app.dto';
-import { AuthUser } from '@common/dto/core.dto';
+import { AuthUser } from '@common/dto/entity.dto';
 import { Merchant } from '@common/schema/merchant.schema';
 import { EUser } from '@common/utils/enum';
 import { BadRequestException, Injectable } from '@nestjs/common';

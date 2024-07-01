@@ -15,7 +15,6 @@ import { CoreModule } from '@common/core/core.module';
 
 @Module({
   imports: [
-    CoreModule,
     CoreHttpModule,
     AdminAppModule,
     AppConfigModule,
