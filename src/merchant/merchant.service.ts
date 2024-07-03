@@ -5,7 +5,7 @@ import { FindByIdDto } from '@common/dto/core.dto';
 import { CreateMerchantDto, MerchantServiceMethods } from '@common/dto/merchant.dto';
 import { Merchant } from '@common/schema/merchant.schema';
 import { ECategory, EEntityMetadata, EStatus } from '@common/utils/enum';
-import { BadRequestException, Inject, Injectable, forwardRef } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { AddressService } from '@shared/address/address.service';
 import { CategoryService } from '@shared/category/category.service';
 import { Document } from 'mongoose';
