@@ -4,29 +4,27 @@ import { Repository } from '@common/core/repository';
 import { FindByIdDto } from '@common/dto/core.dto';
 import { CreateMerchantDto, MerchantServiceMethods } from '@common/dto/merchant.dto';
 import { Merchant } from '@common/schema/merchant.schema';
-import { getPeriodDate, isPeriodExceed } from '@common/utils/datetime';
-import { ECategory, EEntityMetadata, EMail, EStatus } from '@common/utils/enum';
+import { ECategory, EEntityMetadata, EStatus } from '@common/utils/enum';
 import { BadRequestException, Inject, Injectable, forwardRef } from '@nestjs/common';
 import { AddressService } from '@shared/address/address.service';
 import { CategoryService } from '@shared/category/category.service';
-import { MailService } from '@shared/mail/mail.service';
 import { Document } from 'mongoose';
-import { AppConfigService } from 'src/app_config/app_config.service';
+import { MerchantPurchaseService } from 'src/merchant_purchase/merchant_purchase.service';
 import { AdminMetadataService } from 'src/metadata/admin_metadata.service';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class MerchantService implements MerchantServiceMethods {
   constructor(
-    private readonly context: ContextService,
     @Inject(REPOSITORY) private readonly repository: Repository<Merchant>,
-    private readonly appConfigService: AppConfigService,
     @Inject(forwardRef(() => AdminMetadataService))
+    @Inject(forwardRef(() => UserService))
+    private readonly userService: UserService,
     private readonly metadataService: AdminMetadataService,
-    private readonly mailService: MailService,
     private readonly addressService: AddressService,
-    @Inject(forwardRef(() => UserService)) private readonly userService: UserService,
     private readonly categoryService: CategoryService,
+    private readonly purchaseService: MerchantPurchaseService,
+    private readonly context: ContextService,
   ) {}
 
   tmpTst(): { data: string } {
@@ -38,41 +36,15 @@ export class MerchantService implements MerchantServiceMethods {
   }
 
   async merchantWithAuth({ id }: FindByIdDto) {
-    const { data: appConfig } = await this.appConfigService.getConfig();
-    const { data: merchant } = await this.repository.findById({
-      id,
-      options: { populate: 'activePurchase' },
-    });
-    const [subEnd, subUntil] = isPeriodExceed(
-      merchant.activePurchase.subscriptionPeriod,
-      merchant.activePurchase.createdAt,
-    );
-    const [preSubEnd] = isPeriodExceed(
-      merchant.activePurchase.subscriptionPeriod,
-      getPeriodDate(appConfig.preEndSubMailPeriod, new Date()),
-    );
-    const isSubActive =
-      merchant.status === EStatus.Active &&
-      merchant.activePurchase &&
-      (!merchant.activePurchase.subscriptionPeriod || !subEnd);
-
-    if (!isSubActive) {
-      if (!merchant.activePurchase || merchant.status !== EStatus.Active) return;
-      await this.repository.findAndUpdate({
-        id: merchant._id,
-        update: {
-          $set: { status: EStatus.Expired, activePurchase: null },
-        },
+    const { data: merchant } = await this.repository.findById({ id });
+    if (merchant.status.status === EStatus.Active) {
+      const { data: isSubActive } = await this.purchaseService.subMonitor({
+        id: merchant.activePurchase as any,
+        merchantMail: merchant.mail,
       });
+      if (isSubActive) return { merchant, isSubActive };
     }
-    if (subEnd || preSubEnd)
-      this.mailService.sendMail({
-        mail: merchant.mail,
-        type: EMail.MerchantSubscriptionExpire,
-        expirePayload: subEnd ? { expireDate: subUntil } : undefined,
-        preExpirePayload: subEnd ? undefined : { expireDate: subUntil },
-      });
-    return { data: merchant, isSubActive };
+    return { merchant: undefined, isSubActive: false };
   }
 
   async createMerchant({
@@ -112,8 +84,6 @@ export class MerchantService implements MerchantServiceMethods {
     });
 
     merchant.owner = user;
-
-    throw new BadRequestException('you bad..');
 
     return { data: await merchant.save({ session: this.context.get(C_SESSION) }) };
   }

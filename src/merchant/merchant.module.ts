@@ -11,6 +11,7 @@ import { Merchant, MerchantSchema } from '@common/schema/merchant.schema';
 import { getRepositoryProvider } from '@common/utils/misc';
 import { UserModule } from 'src/user/user.module';
 import { AdminMetadataModule } from 'src/metadata/admin_metadata.module';
+import { MerchantPurchaseModule } from 'src/merchant_purchase/merchant_purchase.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AdminMetadataModule } from 'src/metadata/admin_metadata.module';
     CategoryModule,
     AdminMetadataModule,
     UserModule,
+    MerchantPurchaseModule,
   ],
   controllers: [MerchantController, MerchantGrpcController],
   providers: [MerchantService, getRepositoryProvider({ name: Merchant.name })],

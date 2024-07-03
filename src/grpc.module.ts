@@ -1,11 +1,15 @@
 import { CoreModule } from '@common/core/core.module';
-import { GrpcAuthGuard } from '@common/guard/grpc_auth.guard';
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthCredentialModule } from './auth_credential/auth_credential.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { JWT_SECRET } from '@common/constant';
+import { AUTH_CREDENTIAL, JWT_SECRET, USER } from '@common/constant';
+import { GrpcAuthGuard } from '@common/guard/admin_grpc_auth.guard';
+import { getServiceToken } from '@common/utils/misc';
+import { AuthCredentialService } from './auth_credential/auth_credential.service';
+import { UserService } from './user/user.service';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -19,8 +23,12 @@ import { JWT_SECRET } from '@common/constant';
       }),
       inject: [ConfigService],
     }),
+    AuthCredentialModule,
+    UserModule,
   ],
   providers: [
+    { provide: getServiceToken(AUTH_CREDENTIAL), useExisting: AuthCredentialService },
+    { provide: getServiceToken(USER), useExisting: UserService },
     {
       provide: APP_GUARD,
       useClass: GrpcAuthGuard,
