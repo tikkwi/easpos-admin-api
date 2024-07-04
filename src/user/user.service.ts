@@ -1,5 +1,8 @@
 import { REPOSITORY } from '@common/constant';
+import { ContextService } from '@common/core/context/context.service';
+import { CoreService } from '@common/core/core.service';
 import { Repository } from '@common/core/repository';
+import { AppService } from '@common/decorator/app_service.decorator';
 import { FindByIdDto } from '@common/dto/core.dto';
 import { AuthUser } from '@common/dto/entity.dto';
 import { CreateUserDto, GetUserDto, UserServiceMethods } from '@common/dto/user.dto';
@@ -11,13 +14,17 @@ import { pick } from 'lodash';
 import { MerchantService } from 'src/merchant/merchant.service';
 import { AdminMetadataService } from 'src/metadata/admin_metadata.service';
 
-export class UserService implements UserServiceMethods {
+@AppService()
+export class UserService extends CoreService implements UserServiceMethods {
   constructor(
     @Inject(REPOSITORY) private readonly repository: Repository<User>,
     @Inject(forwardRef(() => MerchantService)) private readonly merchantService: MerchantService,
     @Inject(forwardRef(() => AdminMetadataService))
     private readonly metadataService: AdminMetadataService,
-  ) {}
+    protected readonly context: ContextService,
+  ) {
+    super();
+  }
 
   async getUser({ id, userName, mail, lean = true }: GetUserDto) {
     if (!id && !userName && !mail) throw new BadRequestException('Missing filter');
@@ -41,7 +48,7 @@ export class UserService implements UserServiceMethods {
     return {
       data: {
         ...pick(user, ['id', 'userName', 'firstName', 'type', 'firstName', 'lastName', 'mail']),
-        isOwner: user.merchant.owner.equals(id),
+        isOwner: (user.merchant.owner as unknown as ObjectId).equals(id),
         userStatus: user.status.status,
         servicePermissions: user.servicePermissions?.reduce((acc, cur) => {
           const permissions = cur.permissions ? { urls: [], auxillaryServices: [] } : undefined;

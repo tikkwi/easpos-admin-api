@@ -5,7 +5,7 @@ import { AuthCredentialModule } from './auth_credential/auth_credential.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { AUTH_CREDENTIAL, JWT_SECRET, USER } from '@common/constant';
-import { GrpcAuthGuard } from '@common/guard/admin_grpc_auth.guard';
+import { GrpcAuthGuard } from '@common/guard/grpc_auth.guard';
 import { getServiceToken } from '@common/utils/misc';
 import { AuthCredentialService } from './auth_credential/auth_credential.service';
 import { UserService } from './user/user.service';

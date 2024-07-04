@@ -1,11 +1,13 @@
-import { C_SESSION, REPOSITORY } from '@common/constant';
+import { REPOSITORY } from '@common/constant';
 import { ContextService } from '@common/core/context/context.service';
+import { CoreService } from '@common/core/core.service';
 import { Repository } from '@common/core/repository';
+import { AppService } from '@common/decorator/app_service.decorator';
 import { FindByIdDto } from '@common/dto/core.dto';
 import { CreateMerchantDto, MerchantServiceMethods } from '@common/dto/merchant.dto';
 import { Merchant } from '@common/schema/merchant.schema';
 import { ECategory, EEntityMetadata, EStatus } from '@common/utils/enum';
-import { ForbiddenException, Inject, Injectable, forwardRef } from '@nestjs/common';
+import { Inject, forwardRef } from '@nestjs/common';
 import { AddressService } from '@shared/address/address.service';
 import { CategoryService } from '@shared/category/category.service';
 import { Document } from 'mongoose';
@@ -13,8 +15,8 @@ import { MerchantPurchaseService } from 'src/merchant_purchase/merchant_purchase
 import { AdminMetadataService } from 'src/metadata/admin_metadata.service';
 import { UserService } from 'src/user/user.service';
 
-@Injectable()
-export class MerchantService implements MerchantServiceMethods {
+@AppService()
+export class MerchantService extends CoreService implements MerchantServiceMethods {
   constructor(
     @Inject(REPOSITORY) private readonly repository: Repository<Merchant>,
     @Inject(forwardRef(() => AdminMetadataService))
@@ -24,8 +26,10 @@ export class MerchantService implements MerchantServiceMethods {
     private readonly addressService: AddressService,
     private readonly categoryService: CategoryService,
     private readonly purchaseService: MerchantPurchaseService,
-    private readonly context: ContextService,
-  ) {}
+    protected readonly context: ContextService,
+  ) {
+    super();
+  }
 
   tmpTst(): { data: string } {
     return { data: 'You hi me..' };
@@ -85,6 +89,6 @@ export class MerchantService implements MerchantServiceMethods {
 
     merchant.owner = user;
 
-    return { data: await merchant.save({ session: this.context.get(C_SESSION) }) };
+    return { data: await merchant.save({ session: this.context.get('session') }) };
   }
 }

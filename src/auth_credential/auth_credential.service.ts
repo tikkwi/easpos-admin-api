@@ -1,5 +1,8 @@
 import { REPOSITORY } from '@common/constant';
+import { ContextService } from '@common/core/context/context.service';
+import { CoreService } from '@common/core/core.service';
 import { Repository } from '@common/core/repository';
+import { AppService } from '@common/decorator/app_service.decorator';
 import {
   AuthCredentialServiceMethods,
   GetAuthCredentialDto,
@@ -8,9 +11,14 @@ import { AuthCredential } from '@common/schema/auth_credential.schema';
 import { parseGrpcPath } from '@common/utils/regex';
 import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 
-@Injectable()
-export class AuthCredentialService implements AuthCredentialServiceMethods {
-  constructor(@Inject(REPOSITORY) private readonly repository: Repository<AuthCredential>) {}
+@AppService()
+export class AuthCredentialService extends CoreService implements AuthCredentialServiceMethods {
+  constructor(
+    @Inject(REPOSITORY) private readonly repository: Repository<AuthCredential>,
+    protected readonly context: ContextService,
+  ) {
+    super();
+  }
 
   async getAuthCredential({ url, ip }: GetAuthCredentialDto) {
     const [pkg, srv, pth] = parseGrpcPath(url);
