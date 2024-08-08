@@ -7,9 +7,9 @@ import { AppConfig, AppConfigSchema } from '@common/schema/app_config.schema';
 import { getRepositoryProvider } from '@common/utils/misc';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: AppConfig.name, schema: AppConfigSchema }])],
-  controllers: [AppConfigController, AppConfigGrpcController],
-  providers: [AppConfigService, getRepositoryProvider({ name: AppConfig.name })],
-  exports: [AppConfigService],
+   imports: [MongooseModule.forFeature([{ name: AppConfig.name, schema: AppConfigSchema }])],
+   controllers: [AppConfigController, AppConfigGrpcController],
+   providers: [AppConfigService, getRepositoryProvider({ name: AppConfig.name })],
+   exports: [AppConfigService],
 })
 export class AppConfigModule {}

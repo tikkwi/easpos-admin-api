@@ -5,21 +5,21 @@ import { MerchantService } from './merchant.service';
 
 @GrpcHandler()
 export class MerchantGrpcController {
-  constructor(private readonly service: MerchantService) {}
+   constructor(private readonly service: MerchantService) {}
 
-  async getMerchant(dto: FindByIdDto) {
-    return this.service.getMerchant(dto);
-  }
+   async getMerchant(dto: FindByIdDto) {
+      return this.service.getMerchant(dto);
+   }
 
-  async merchantWithAuth(dto: FindByIdDto) {
-    return this.service.merchantWithAuth(dto);
-  }
+   async merchantWithAuth(dto: FindByIdDto) {
+      return this.service.merchantWithAuth(dto);
+   }
 
-  async createMerchant(dto: CreateMerchantDto) {
-    return this.service.createMerchant(dto);
-  }
+   async createMerchant(dto: CreateMerchantDto) {
+      return this.service.createMerchant(dto);
+   }
 
-  tmpTst() {
-    return this.service.tmpTst();
-  }
+   tmpTst() {
+      return this.service.tmpTst();
+   }
 }

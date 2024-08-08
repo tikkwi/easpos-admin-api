@@ -12,27 +12,23 @@ import { UserService } from './user/user.service';
 import { UserModule } from './user/user.module';
 
 @Module({
-  imports: [
-    CoreModule,
-    AuthCredentialModule,
-    JwtModule.registerAsync({
-      useFactory: (config: ConfigService) => ({
-        global: true,
-        secret: config.get(JWT_SECRET),
-        signOptions: { expiresIn: '15d' },
+   imports: [
+      CoreModule,
+      AuthCredentialModule,
+      JwtModule.registerAsync({
+         useFactory: (config: ConfigService) => ({
+            global: true,
+            secret: config.get(JWT_SECRET),
+            signOptions: { expiresIn: '15d' },
+         }),
+         inject: [ConfigService],
       }),
-      inject: [ConfigService],
-    }),
-    AuthCredentialModule,
-    UserModule,
-  ],
-  providers: [
-    { provide: getServiceToken(AUTH_CREDENTIAL), useExisting: AuthCredentialService },
-    { provide: getServiceToken(USER), useExisting: UserService },
-    {
-      provide: APP_GUARD,
-      useClass: GrpcAuthGuard,
-    },
-  ],
+      UserModule,
+   ],
+   providers: [
+      { provide: getServiceToken(AUTH_CREDENTIAL), useExisting: AuthCredentialService },
+      { provide: getServiceToken(USER), useExisting: UserService },
+      { provide: APP_GUARD, useClass: GrpcAuthGuard },
+   ],
 })
 export class GrpcModule {}

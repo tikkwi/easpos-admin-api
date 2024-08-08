@@ -4,6 +4,6 @@ import { HttpModule } from './http.module';
 import { GrpcModule } from './grpc.module';
 
 async function bootstrap() {
-  await appBootstrap(HttpModule, 4000, { packages: [MERCHANT, USER], module: GrpcModule });
+   await appBootstrap(HttpModule, 4000, { packages: [MERCHANT, USER], module: GrpcModule });
 }
 bootstrap();

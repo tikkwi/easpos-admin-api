@@ -6,11 +6,11 @@ import { AuthCredential, AuthCredentialSchema } from '@common/schema/auth_creden
 import { getRepositoryProvider } from '@common/utils/misc';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([{ name: AuthCredential.name, schema: AuthCredentialSchema }]),
-  ],
-  controllers: [AuthCredentialGrpcController],
-  providers: [AuthCredentialService, getRepositoryProvider({ name: AuthCredential.name })],
-  exports: [AuthCredentialService],
+   imports: [
+      MongooseModule.forFeature([{ name: AuthCredential.name, schema: AuthCredentialSchema }]),
+   ],
+   controllers: [AuthCredentialGrpcController],
+   providers: [AuthCredentialService, getRepositoryProvider({ name: AuthCredential.name })],
+   exports: [AuthCredentialService],
 })
 export class AuthCredentialModule {}

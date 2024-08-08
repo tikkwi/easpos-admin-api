@@ -5,15 +5,15 @@ import { MerchantService } from './merchant.service';
 
 @AppController('merchant')
 export class MerchantController {
-  constructor(private readonly service: MerchantService) {}
+   constructor(private readonly service: MerchantService) {}
 
-  @Post('create')
-  async createMerchant(@Body() dto: CreateMerchantDto) {
-    return this.service.createMerchant(dto);
-  }
+   @Post('create')
+   async createMerchant(@Body() dto: CreateMerchantDto) {
+      return this.service.createMerchant(dto);
+   }
 
-  @Get('test')
-  test() {
-    return this.service.tmpTst();
-  }
+   @Get('test')
+   test() {
+      return this.service.tmpTst();
+   }
 }

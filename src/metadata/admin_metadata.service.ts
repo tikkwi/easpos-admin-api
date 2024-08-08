@@ -10,13 +10,14 @@ import { UserService } from 'src/user/user.service';
 
 @AppService()
 export class AdminMetadataService extends MetadataService {
-  constructor(
-    protected addressService: AddressService,
-    @Inject(forwardRef(() => MerchantService))
-    protected readonly merchantService: MerchantSharedServiceMethods,
-    @Inject(forwardRef(() => UserService)) protected readonly userService: UserSharedServiceMethods,
-    protected readonly context: ContextService,
-  ) {
-    super();
-  }
+   constructor(
+      protected addressService: AddressService,
+      @Inject(forwardRef(() => MerchantService))
+      protected readonly merchantService: MerchantSharedServiceMethods,
+      @Inject(forwardRef(() => UserService))
+      protected readonly userService: UserSharedServiceMethods,
+      protected readonly context: ContextService,
+   ) {
+      super();
+   }
 }

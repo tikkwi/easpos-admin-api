@@ -4,13 +4,13 @@ import { UserService } from './user.service';
 
 @GrpcHandler()
 export class UserGrpcController {
-  protected readonly service: UserService;
+   protected readonly service: UserService;
 
-  async getUser(dto: GetUserDto) {
-    return this.service.getUser(dto);
-  }
+   async getUser(dto: GetUserDto) {
+      return this.service.getUser(dto);
+   }
 
-  async createUser(dto: CreateUserDto) {
-    return this.service.createUser(dto);
-  }
+   async createUser(dto: CreateUserDto) {
+      return this.service.createUser(dto);
+   }
 }

@@ -8,14 +8,14 @@ import { Inject } from '@nestjs/common';
 
 @AppService()
 export class AppConfigService extends CoreService implements AppConfigServiceMethods {
-  constructor(
-    @Inject(REPOSITORY) private readonly repository: Repository<AppConfig>,
-    protected readonly context: ContextService,
-  ) {
-    super();
-  }
+   constructor(
+      @Inject(REPOSITORY) private readonly repository: Repository<AppConfig>,
+      protected readonly context: ContextService,
+   ) {
+      super();
+   }
 
-  async getConfig() {
-    return await this.repository.findOne({ filter: {} });
-  }
+   async getConfig() {
+      return await this.repository.findOne({ filter: {} });
+   }
 }

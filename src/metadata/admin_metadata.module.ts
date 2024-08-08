@@ -8,13 +8,13 @@ import { MerchantModule } from 'src/merchant/merchant.module';
 import { UserModule } from 'src/user/user.module';
 
 @Module({
-  imports: [
-    MongooseModule.forFeature([{ name: Metadata.name, schema: MetadataSchema }]),
-    AddressModule,
-    forwardRef(() => MerchantModule),
-    forwardRef(() => UserModule),
-  ],
-  providers: [AdminMetadataService, getRepositoryProvider({ name: Metadata.name })],
-  exports: [AdminMetadataService],
+   imports: [
+      MongooseModule.forFeature([{ name: Metadata.name, schema: MetadataSchema }]),
+      AddressModule,
+      forwardRef(() => MerchantModule),
+      forwardRef(() => UserModule),
+   ],
+   providers: [AdminMetadataService, getRepositoryProvider({ name: Metadata.name })],
+   exports: [AdminMetadataService],
 })
 export class AdminMetadataModule {}

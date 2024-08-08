@@ -5,8 +5,8 @@ import { UserModule } from 'src/user/user.module';
 import { AdminAppService } from './admin_app.service';
 
 @Module({
-  imports: [UserModule, MerchantModule, AuthCredentialModule],
-  providers: [AdminAppService],
-  exports: [AdminAppService],
+   imports: [UserModule, MerchantModule, AuthCredentialModule],
+   providers: [AdminAppService],
+   exports: [AdminAppService],
 })
 export class AdminAppModule {}

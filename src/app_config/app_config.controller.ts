@@ -4,5 +4,5 @@ import { EAllowedUser } from '@common/utils/enum';
 
 @AppController('app-config', [EAllowedUser.Admin])
 export class AppConfigController {
-  constructor(private readonly service: AppConfigService) {}
+   constructor(private readonly service: AppConfigService) {}
 }
