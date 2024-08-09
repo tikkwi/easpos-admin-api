@@ -1,5 +1,5 @@
 import { ContextService } from '@common/core/context/context.service';
-import { CoreService } from '@common/core/core.service';
+import { CoreService } from '@common/core/service/core.service';
 import { AppService } from '@common/decorator/app_service.decorator';
 import { AdminAppServiceMethods, GetAuthDataDto } from '@common/dto/admin_app.dto';
 import { AuthCredentialService } from 'src/auth_credential/auth_credential.service';
@@ -17,7 +17,7 @@ export class AdminAppService extends CoreService implements AdminAppServiceMetho
 
    async getAuthData({ url, id }: GetAuthDataDto) {
       const { data: authCred } = await this.authCredentialService.getAuthCredential({ url });
-      const { merchant, isSubActive } = await this.merchantService.merchantWithAuth({ id });
+      const { merchant, isSubActive } = (await this.merchantService.merchantWithAuth({ id })).data;
 
       return {
          isSubActive,

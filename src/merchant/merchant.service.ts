@@ -1,6 +1,6 @@
 import { REPOSITORY } from '@common/constant';
 import { ContextService } from '@common/core/context/context.service';
-import { CoreService } from '@common/core/core.service';
+import { CoreService } from '@common/core/service/core.service';
 import { Repository } from '@common/core/repository';
 import { AppService } from '@common/decorator/app_service.decorator';
 import { FindByIdDto } from '@common/dto/core.dto';
@@ -41,9 +41,20 @@ export class MerchantService extends CoreService implements MerchantServiceMetho
             id: merchant.activePurchase as any,
             merchantMail: merchant.mails[0],
          });
-         if (isSubActive) return { merchant, isSubActive };
+         if (isSubActive)
+            return {
+               data: {
+                  merchant,
+                  isSubActive,
+               },
+            };
       }
-      return { merchant: undefined, isSubActive: false };
+      return {
+         data: {
+            merchant,
+            isSubActive: false,
+         },
+      };
    }
 
    async createMerchant({ user: userDto, category, ...dto }: CreateMerchantDto) {

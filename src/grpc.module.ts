@@ -1,4 +1,4 @@
-import { CoreModule } from '@common/core/core.module';
+import { CoreModule } from '@common/core/module/core.module';
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthCredentialModule } from './auth_credential/auth_credential.module';

@@ -1,5 +1,5 @@
 import { AUTH_CREDENTIAL, MERCHANT } from '@common/constant';
-import { CoreHttpModule } from '@common/core/core_http.module';
+import { CoreHttpModule } from '@common/core/module/core_http.module';
 import { BasicAuthMiddleware } from '@common/middleware/basic_auth.middleware';
 import { getServiceToken } from '@common/utils/misc';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
