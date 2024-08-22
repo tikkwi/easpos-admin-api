@@ -46,7 +46,8 @@
     "redis": "^4.6.14",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.8.1",
-    "ua-parser-js": "^1.0.38"
+    "ua-parser-js": "^1.0.38",
+    "uuid": "^10.0.0"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

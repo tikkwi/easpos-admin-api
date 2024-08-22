@@ -1,41 +1,10 @@
-import { AUTH_CREDENTIAL, MERCHANT } from '@common/constant';
-import { CoreHttpModule } from '@common/core/module/core_http.module';
-import { BasicAuthMiddleware } from '@common/middleware/basic_auth.middleware';
-import { getServiceToken } from '@common/utils/misc';
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { TmpModule } from '@shared/tmp/tmp.module';
-import { AdminAppModule } from './admin_app/admin_app.module';
 import { AppConfigModule } from './app_config/app_config.module';
-import { AuthCredentialModule } from './auth_credential/auth_credential.module';
-import { AuthCredentialService } from './auth_credential/auth_credential.service';
-import { MerchantModule } from './merchant/merchant.module';
-import { MerchantService } from './merchant/merchant.service';
-import { AdminMetadataModule } from './metadata/admin_metadata.module';
-import { UserModule } from './user/user.module';
-import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from '@common/guard/auth.guard';
+import { CoreHttpModule } from '@common/core/module/core_http.module';
+import { AppModule } from './app.module';
 
 @Module({
-   imports: [
-      CoreHttpModule,
-      AdminAppModule,
-      AppConfigModule,
-      AuthCredentialModule,
-      MerchantModule,
-      AdminMetadataModule,
-      UserModule,
-      TmpModule,
-   ],
-   providers: [
-      { provide: getServiceToken(MERCHANT), useExisting: MerchantService },
-      { provide: getServiceToken(AUTH_CREDENTIAL), useExisting: AuthCredentialService },
-      { provide: APP_GUARD, useClass: AuthGuard },
-   ],
+   imports: [CoreHttpModule, AppModule, AppConfigModule, TmpModule],
 })
-export class HttpModule implements NestModule {
-   configure(consumer: MiddlewareConsumer) {
-      consumer
-         .apply(BasicAuthMiddleware)
-         .forRoutes('/^.*/swagger$/', '/^.*/login$/', '/^.*/register$/');
-   }
-}
+export class HttpModule {}

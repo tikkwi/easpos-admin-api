@@ -8,7 +8,6 @@ import { MerchantGrpcController } from './merchant.grpc.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Merchant, MerchantSchema } from '@common/schema/merchant.schema';
 import { getRepositoryProvider } from '@common/utils/misc';
-import { UserModule } from 'src/user/user.module';
 import { MerchantPurchaseModule } from 'src/merchant_purchase/merchant_purchase.module';
 
 @Module({
@@ -17,7 +16,6 @@ import { MerchantPurchaseModule } from 'src/merchant_purchase/merchant_purchase.
       AppConfigModule,
       MailModule,
       CategoryModule,
-      UserModule,
       MerchantPurchaseModule,
    ],
    controllers: [MerchantController, MerchantGrpcController],

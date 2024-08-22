@@ -3,26 +3,23 @@ import { ContextService } from '@common/core/context/context.service';
 import { CoreService } from '@common/core/service/core.service';
 import { Repository } from '@common/core/repository';
 import { AppService } from '@common/decorator/app_service.decorator';
-import {
-   AuthCredentialServiceMethods,
-   GetAuthCredentialDto,
-} from '@common/dto/auth_credential.dto';
+import { GetAuthCredentialDto } from '@common/dto/auth_credential.dto';
 import { AuthCredential } from '@common/schema/auth_credential.schema';
-import { parseGrpcPath } from '@common/utils/regex';
 import { BadRequestException, Inject } from '@nestjs/common';
+import { parseGrpcPath } from '@common/utils/regex';
 
 @AppService()
-export class AuthCredentialService extends CoreService implements AuthCredentialServiceMethods {
+export class AuthCredentialService extends CoreService {
    constructor(
-      @Inject(REPOSITORY) private readonly repository: Repository<AuthCredential>,
       protected readonly context: ContextService,
+      @Inject(REPOSITORY) private readonly repository: Repository<AuthCredential>,
    ) {
       super();
    }
 
    async getAuthCredential({ url, ip }: GetAuthCredentialDto) {
-      const [pkg, srv, pth] = parseGrpcPath(url);
-      const isRpc = pkg.includes('_PACKAGE');
+      const [_, srv, pth] = parseGrpcPath(url);
+      const isRpc = url.includes('_PACKAGE');
 
       if (isRpc && !ip) throw new BadRequestException();
 

@@ -1,53 +1,49 @@
-import { PRE_END_SUB_MAIL, REPOSITORY } from '@common/constant';
+import { REPOSITORY } from '@common/constant';
 import { ContextService } from '@common/core/context/context.service';
 import { CoreService } from '@common/core/service/core.service';
 import { Repository } from '@common/core/repository';
 import { AppService } from '@common/decorator/app_service.decorator';
 import { MerchantPurchaseServiceMethods, SubMonitorDto } from '@common/dto/merchant_purchase.dto';
-import { MerchantPurchase } from '@common/schema/merchant_purchase.schema';
-import { getPeriodDate, isPeriodExceed } from '@common/utils/datetime';
-import { EMail } from '@common/utils/enum';
+import { MerchantSubscription } from '@common/schema/merchant_subscription.schema';
 import { Inject } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { MailService } from '@shared/mail/mail.service';
+import { ESubscription } from '@common/utils/enum';
+import { $dayjs, getPeriodDate } from '@common/utils/datetime';
 
 @AppService()
 export class MerchantPurchaseService extends CoreService implements MerchantPurchaseServiceMethods {
    constructor(
-      @Inject(REPOSITORY) private readonly repository: Repository<MerchantPurchase>,
-      private readonly mailService: MailService,
-      private readonly config: ConfigService,
       protected readonly context: ContextService,
+      @Inject(REPOSITORY) private readonly repository: Repository<MerchantSubscription>,
    ) {
       super();
    }
 
-   async subMonitor({ id, merchantMail }: SubMonitorDto) {
-      const { data: purchase } = await this.repository.findById({ id, options: { lean: false } });
+   async subMonitor({ ids }: SubMonitorDto) {
+      const { data: purchases } = await this.repository.find({ filter: { _id: { $in: ids } } });
 
-      const subEnd = purchase.subscriptionPeriod
-         ? isPeriodExceed(purchase.subscriptionPeriod, purchase.createdAt)
-         : undefined;
+      const activePurchases = [];
+      let subEnd;
+      if (purchases[0].type === ESubscription.Offline)
+         return { data: { purchases, isSubActive: true } };
 
-      const preSubEnd = purchase.subscriptionPeriod
-         ? isPeriodExceed(
-              purchase.subscriptionPeriod,
-              getPeriodDate({ days: this.config.get(PRE_END_SUB_MAIL) }, new Date()),
-           )
-         : undefined;
+      purchases.forEach((purchase) => {
+         const purSubEnd = getPeriodDate(purchase.subscriptionPeriod, purchase.startDate);
+         const isSubEnd = $dayjs().isAfter(purSubEnd);
+         if (!isSubEnd) {
+            subEnd = purSubEnd;
+            activePurchases.push(purchase);
+         }
+      });
 
-      if ((subEnd && !purchase.sentSubEndMail) || (preSubEnd && !purchase.sentPreSubEndMail)) {
-         this.mailService.sendMail({
-            mail: merchantMail,
-            type: subEnd ? EMail.MerchantSubscriptionExpire : EMail.MerchantPreSubscriptionExpire,
-            expirePayload: subEnd ? { expireDate: subEnd[1] } : undefined,
-            preExpirePayload: subEnd ? undefined : { expireDate: subEnd[1] },
-         });
-         if (subEnd) purchase.sentSubEndMail = true;
-         if (preSubEnd) purchase.sentPreSubEndMail = true;
-         await purchase.save({ session: this.context.get('session') });
-      }
+      const isSubEnd = subEnd ? $dayjs().isAfter(subEnd) : true;
 
-      return { data: !!subEnd };
+      return { data: { purchases, isSubActive: !isSubEnd, subEnd } };
    }
+
+   /*
+    * TODO: Purchase
+    *  1. Allow both upgrading and extending (can be both at the same time)
+    *  2. Upgrading/Downgrade will also update to existing data(upgrade num_user etc)
+    *  3. Change subscription type need to wait current purchase to expire
+    * */
 }
