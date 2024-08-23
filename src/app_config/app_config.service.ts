@@ -1,13 +1,13 @@
-import { REPOSITORY } from '@common/constant';
-import { ContextService } from '@common/core/context/context.service';
-import { CoreService } from '@common/core/service/core.service';
-import { Repository } from '@common/core/repository';
-import { AppService } from '@common/decorator/app_service.decorator';
-import { AppConfigServiceMethods } from '@common/dto/app_config.dto';
+import { REPOSITORY } from '@constant/model.constant';
+import { ContextService } from '@core/context/context.service';
+import { CoreService } from '@core/service/core.service';
+import { Repository } from '@core/repository';
+import { AppService } from '@decorator/app_service.decorator';
 import { Inject } from '@nestjs/common';
+import { AppConfig } from './app_config.schema';
 
 @AppService()
-export class AppConfigService extends CoreService implements AppConfigServiceMethods {
+export class AppConfigService extends CoreService {
    constructor(
       @Inject(REPOSITORY) private readonly repository: Repository<AppConfig>,
       protected readonly context: ContextService,

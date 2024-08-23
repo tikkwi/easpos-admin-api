@@ -1,12 +1,12 @@
-import { REPOSITORY } from '@common/constant';
-import { ContextService } from '@common/core/context/context.service';
-import { CoreService } from '@common/core/service/core.service';
-import { Repository } from '@common/core/repository';
-import { AppService } from '@common/decorator/app_service.decorator';
-import { GetAuthCredentialDto } from '@common/dto/auth_credential.dto';
-import { AuthCredential } from '@common/schema/auth_credential.schema';
+import { REPOSITORY } from '@constant/model.constant';
+import { ContextService } from '@core/context/context.service';
+import { CoreService } from '@core/service/core.service';
+import { Repository } from '@core/repository';
+import { AppService } from '@decorator/app_service.decorator';
+import { GetAuthCredentialDto } from '@service_dto/auth_credential.dto';
+import { AuthCredential } from '@service_schema/auth_credential.schema';
 import { BadRequestException, Inject } from '@nestjs/common';
-import { parseGrpcPath } from '@common/utils/regex';
+import { parseGrpcPath } from '@utils/regex';
 
 @AppService()
 export class AuthCredentialService extends CoreService {

@@ -1,23 +1,24 @@
-import { PRE_END_SUB_MAIL, REPOSITORY } from '@common/constant';
-import { ContextService } from '@common/core/context/context.service';
-import { CoreService } from '@common/core/service/core.service';
-import { Repository } from '@common/core/repository';
-import { AppService } from '@common/decorator/app_service.decorator';
-import { FindByIdDto } from '@common/dto/core.dto';
+import { REPOSITORY } from '@constant/model.constant';
+import { PRE_END_SUB_MAIL } from '@constant/config.constant';
+import { ContextService } from '@core/context/context.service';
+import { CoreService } from '@core/service/core.service';
+import { Repository } from '@core/repository';
+import { AppService } from '@decorator/app_service.decorator';
+import { FindByIdDto } from '@global_dto/core.dto';
 import {
    CreateMerchantDto,
    MerchantServiceMethods,
    MerchantUserLoginDto,
    MerchantVerifyDto,
-} from '@common/dto/merchant.dto';
-import { Merchant } from '@common/schema/merchant.schema';
-import { ECategory, EMail, EStatus, ESubscription, EUserApp } from '@common/utils/enum';
+} from '@service_dto/merchant.dto';
+import { Merchant } from '@service_schema/merchant.schema';
+import { ECategory, EMail, EStatus, ESubscription, EUserApp } from '@utils/enum';
 import { BadRequestException, ForbiddenException, Inject } from '@nestjs/common';
 import { CategoryService } from '@shared/category/category.service';
 import { Document } from 'mongoose';
-import { MerchantPurchaseService } from 'src/merchant_purchase/merchant_purchase.service';
-import { AppRedisService } from '@common/core/app_redis/app_redis.service';
-import { $dayjs } from '@common/utils/datetime';
+import { MerchantPurchaseService } from '../merchant_subscription/merchant_subscription.service';
+import { AppRedisService } from '@core/app_redis/app_redis.service';
+import { $dayjs } from '@utils/datetime';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from '@shared/mail/mail.service';
 
@@ -39,12 +40,12 @@ export class MerchantService extends CoreService implements MerchantServiceMetho
       return { data: 'You hi me..' };
    }
 
-   async getMerchant(dto: FindByIdDto) {
-      return await this.repository.findById(dto);
+   async getMerchant({ id, errorOnNotFound = true }: FindByIdDto) {
+      return await this.repository.findOne({ id, errorOnNotFound });
    }
 
    async merchantWithAuth({ id, lean }: FindByIdDto) {
-      const { data: merchant } = await this.repository.findById({ id, options: { lean } });
+      const { data: merchant } = await this.repository.findOne({ id, options: { lean } });
       if (merchant.status.status === EStatus.Active) {
          const {
             data: { purchases, isSubActive, subEnd },
@@ -126,21 +127,19 @@ export class MerchantService extends CoreService implements MerchantServiceMetho
       return { data: await merchant.save({ session: this.context.get('session') }) };
    }
 
-   async requestVerification() {
-      const { merchant } = await this.db.update('merchant', async (prev) => {
-         if (prev.merchant.verified) throw new BadRequestException('Merchant already verified');
-         const code = Math.floor(Math.random() * 1000000).toString();
-         const { data: merchant } = await this.repository.findAndUpdate({
-            id: prev.merchant._id,
-            update: { mfa: { code, expireAt: $dayjs().add(1, 'minutes').toDate() } },
-         });
-         return { ...prev, merchant };
+   async requestVerification({ id }: FindByIdDto) {
+      const { data } = await this.getMerchant({ id });
+      if (data.verified) throw new BadRequestException('Merchant already verified');
+      const code = Math.floor(Math.random() * 1000000).toString();
+      const { data: merchant } = await this.repository.findAndUpdate({
+         id: data._id,
+         update: { mfa: { code, expireAt: $dayjs().add(1, 'minutes').toDate() } },
       });
       return { data: merchant.mfa };
    }
 
-   async verify({ code }: MerchantVerifyDto) {
-      const { merchant } = this.context.get('merchant');
+   async verify({ id, code }: MerchantVerifyDto) {
+      const { data: merchant } = await this.getMerchant({ id });
       if (!merchant.mfa) throw new BadRequestException('Request verification code first');
       if ($dayjs().isAfter($dayjs(merchant.mfa.expireAt))) throw new BadRequestException('Expired');
       if (code !== merchant.mfa.code) throw new BadRequestException('Invalid code');

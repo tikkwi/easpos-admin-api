@@ -1,6 +1,6 @@
-import { GrpcHandler } from '@common/decorator/grpc_handler.decorator';
-import { FindByIdDto } from '@common/dto/core.dto';
-import { CreateMerchantDto } from '@common/dto/merchant.dto';
+import { GrpcHandler } from '@decorator/grpc_handler.decorator';
+import { FindByIdDto } from '@global_dto/core.dto';
+import { CreateMerchantDto } from '@service_dto/merchant.dto';
 import { MerchantService } from './merchant.service';
 
 @GrpcHandler()

@@ -6,9 +6,9 @@ import { MerchantController } from './merchant.controller';
 import { MerchantService } from './merchant.service';
 import { MerchantGrpcController } from './merchant.grpc.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Merchant, MerchantSchema } from '@common/schema/merchant.schema';
-import { getRepositoryProvider } from '@common/utils/misc';
-import { MerchantPurchaseModule } from 'src/merchant_purchase/merchant_purchase.module';
+import { getRepositoryProvider } from '@utils/misc';
+import { MerchantPurchaseModule } from '../merchant_subscription/merchant_subscription.module';
+import { Merchant, MerchantSchema } from '@service_schema/merchant.schema';
 
 @Module({
    imports: [

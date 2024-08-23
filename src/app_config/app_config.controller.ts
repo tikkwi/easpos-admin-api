@@ -1,6 +1,6 @@
-import { AppController } from '@common/decorator/app_controller.decorator';
+import { AppController } from '@decorator/app_controller.decorator';
 import { AppConfigService } from './app_config.service';
-import { EAllowedUser } from '@common/utils/enum';
+import { EAllowedUser } from '@utils/enum';
 
 @AppController('app-config', [EAllowedUser.Admin])
 export class AppConfigController {
