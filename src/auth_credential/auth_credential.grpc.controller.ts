@@ -1,6 +1,6 @@
-import { GrpcHandler } from '@decorator/grpc_handler.decorator';
 import { AuthCredentialService } from './auth_credential.service';
-import { GetAuthCredentialDto } from '@service_dto/auth_credential.dto';
+import { GrpcHandler } from '@common/decorator/grpc_handler.decorator';
+import { GetAuthCredentialDto } from '@common/dto/service/auth_credential.dto';
 
 @GrpcHandler()
 export class AuthCredentialGrpcController {

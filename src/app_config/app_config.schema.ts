@@ -1,8 +1,8 @@
 import { Schema, SchemaFactory } from '@nestjs/mongoose';
-import { BaseSchema } from '@global_schema/base.schema';
-import { AppProp } from '@decorator/app_prop.decorator';
 import { SchemaTypes } from 'mongoose';
-import { Currency } from '@global_schema/currency.schema';
+import { BaseSchema } from '@common/schema/global/base.schema';
+import { AppProp } from '@common/decorator/app_prop.decorator';
+import { Currency } from '@common/schema/global/currency.schema';
 
 @Schema()
 export class AppConfig extends BaseSchema {

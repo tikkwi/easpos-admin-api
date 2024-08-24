@@ -1,10 +1,10 @@
-import { REPOSITORY } from '@constant/model.constant';
-import { ContextService } from '@core/context/context.service';
-import { CoreService } from '@core/service/core.service';
-import { Repository } from '@core/repository';
-import { AppService } from '@decorator/app_service.decorator';
 import { Inject } from '@nestjs/common';
 import { AppConfig } from './app_config.schema';
+import { AppService } from '@common/decorator/app_service.decorator';
+import { CoreService } from '@common/core/service/core.service';
+import { REPOSITORY } from '@common/constant';
+import { Repository } from '@common/core/repository';
+import { ContextService } from '@common/core/context/context.service';
 
 @AppService()
 export class AppConfigService extends CoreService {

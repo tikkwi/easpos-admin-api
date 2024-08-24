@@ -4,7 +4,7 @@ import { AppConfigService } from './app_config.service';
 import { AppConfigGrpcController } from './app_config.grpc.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppConfig, AppConfigSchema } from './app_config.schema';
-import { getRepositoryProvider } from '@utils/misc';
+import { getRepositoryProvider } from '@common/utils/misc';
 
 @Module({
    imports: [MongooseModule.forFeature([{ name: AppConfig.name, schema: AppConfigSchema }])],

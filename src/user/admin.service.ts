@@ -1,12 +1,12 @@
-import { AppService } from '@decorator/app_service.decorator';
-import { UserService } from '@common_shared/user/user.service';
-import { ContextService } from '@core/context/context.service';
-import { AppRedisService } from '@core/app_redis/app_redis.service';
-import { Repository } from '@core/repository';
 import { Admin } from './admin.schema';
 import { Inject } from '@nestjs/common';
-import { REPOSITORY } from '@constant/model.constant';
-import { LoginDto } from '@common_shared/user/user.dto';
+import { AppService } from '@common/decorator/app_service.decorator';
+import { UserService } from '@common/shared/user/user.service';
+import { ContextService } from '@common/core/context/context.service';
+import { AppRedisService } from '@common/core/app_redis/app_redis.service';
+import { REPOSITORY } from '@common/constant';
+import { Repository } from '@common/core/repository';
+import { LoginDto } from '@common/shared/user/user.dto';
 
 @AppService()
 export class AdminService extends UserService {

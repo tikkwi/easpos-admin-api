@@ -1,9 +1,9 @@
 import { Schema, SchemaFactory } from '@nestjs/mongoose';
-import { User } from '@global_schema/user.schema';
-import { AppProp } from '@decorator/app_prop.decorator';
 import { SchemaTypes } from 'mongoose';
 import { Type } from 'class-transformer';
-import { UserRole } from '@global_dto/entity.dto';
+import { User } from '@common/schema/global/user.schema';
+import { AppProp } from '@common/decorator/app_prop.decorator';
+import { UserRole } from '@common/dto/global/entity.dto';
 
 @Schema()
 export class Admin extends User {

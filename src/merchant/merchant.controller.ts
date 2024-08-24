@@ -1,7 +1,7 @@
-import { AppController } from '@decorator/app_controller.decorator';
-import { CreateMerchantDto } from '@service_dto/merchant.dto';
 import { Body, Get, Post } from '@nestjs/common';
 import { MerchantService } from './merchant.service';
+import { AppController } from '@common/decorator/app_controller.decorator';
+import { CreateMerchantDto } from '@common/dto/service/merchant.dto';
 
 @AppController('merchant')
 export class MerchantController {
