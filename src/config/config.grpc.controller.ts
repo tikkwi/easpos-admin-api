@@ -1,4 +1,4 @@
-import { AppConfigService } from './app_config.service';
+import { AppConfigService } from './config.service';
 import { GrpcHandler } from '@common/decorator/grpc_handler.decorator';
 
 @GrpcHandler()

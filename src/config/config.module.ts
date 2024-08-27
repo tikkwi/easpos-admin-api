@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { AppConfigController } from './app_config.controller';
-import { AppConfigService } from './app_config.service';
-import { AppConfigGrpcController } from './app_config.grpc.controller';
+import { AppConfigController } from './config.controller';
+import { AppConfigService } from './config.service';
+import { AppConfigGrpcController } from './config.grpc.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AppConfig, AppConfigSchema } from './app_config.schema';
+import { AppConfig, AppConfigSchema } from './config.schema';
 import { getRepositoryProvider } from '@common/utils/misc';
 
 @Module({

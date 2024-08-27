@@ -10,7 +10,7 @@ import {
 import { ContextService } from '@common/core/context/context.service';
 import { REPOSITORY } from '@common/constant';
 import { Repository } from '@common/core/repository';
-import { MerchantSubscription } from '@common/schema/service/merchant_subscription.schema';
+import { MerchantSubscription } from '@app/subscription/subscription.schema';
 import { ESubscription } from '@common/utils/enum';
 import { $dayjs, getPeriodDate } from '@common/utils/datetime';
 

@@ -1,5 +1,5 @@
 import { Inject } from '@nestjs/common';
-import { AppConfig } from './app_config.schema';
+import { AppConfig } from './config.schema';
 import { AppService } from '@common/decorator/app_service.decorator';
 import { CoreService } from '@common/core/service/core.service';
 import { REPOSITORY } from '@common/constant';

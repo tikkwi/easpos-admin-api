@@ -1,9 +1,9 @@
 import { BadRequestException, ForbiddenException, Inject } from '@nestjs/common';
-import { CategoryService } from '@shared/category/category.service';
+import { CategoryService } from '@common/service/category/category.service';
 import { Document } from 'mongoose';
-import { MerchantPurchaseService } from '../merchant_subscription/merchant_subscription.service';
+import { MerchantPurchaseService } from '@app/subscription/subscription.service';
 import { ConfigService } from '@nestjs/config';
-import { MailService } from '@shared/mail/mail.service';
+import { MailService } from '@common/service/mail/mail.service';
 import { AppService } from '@common/decorator/app_service.decorator';
 import { CoreService } from '@common/core/service/core.service';
 import {

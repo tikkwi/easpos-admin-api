@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
-import { CategoryModule } from '@shared/category/category.module';
-import { MailModule } from '@shared/mail/mail.module';
+import { CategoryModule } from '@service/category/category.module';
+import { MailModule } from '@service/mail/mail.module';
 import { MerchantController } from './merchant.controller';
 import { MerchantService } from './merchant.service';
 import { MerchantGrpcController } from './merchant.grpc.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { MerchantPurchaseModule } from '../merchant_subscription/merchant_subscription.module';
-import { Merchant, MerchantSchema } from '@common/schema/service/merchant.schema';
-import { AppConfigModule } from '@app/app_config/app_config.module';
+import { MerchantPurchaseModule } from '@app/subscription/subscription.module';
+import { Merchant, MerchantSchema } from '@app/merchant/merchant.schema';
+import { AppConfigModule } from '@app/config/config.module';
 import { getRepositoryProvider } from '@common/utils/misc';
 
 @Module({

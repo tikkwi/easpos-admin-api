@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { MerchantPurchaseService } from './merchant_subscription.service';
-import { MailModule } from '@shared/mail/mail.module';
+import { MerchantPurchaseService } from './subscription.service';
+import { MailModule } from '@service/mail/mail.module';
 import {
    MerchantSubscription,
    MerchantSubscriptionSchema,
-} from '@common/schema/service/merchant_subscription.schema';
+} from '@app/subscription/subscription.schema';
 import { getRepositoryProvider } from '@common/utils/misc';
 
 @Module({

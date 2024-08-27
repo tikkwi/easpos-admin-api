@@ -1,4 +1,4 @@
-import { AppConfigService } from './app_config.service';
+import { AppConfigService } from './config.service';
 import { AppController } from '@common/decorator/app_controller.decorator';
 import { EAllowedUser } from '@common/utils/enum';
 
