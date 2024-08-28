@@ -9,6 +9,9 @@ export class AppSubscription extends BaseSchema {
    @AppProp({ type: String, enum: ESubscription })
    type: ESubscription;
 
+   @AppProp({ type: String })
+   name: string;
+
    @AppProp({ type: String, required: false })
    description?: string;
 

@@ -4,7 +4,7 @@ import { CoreService } from '@common/core/service/core.service';
 import { ContextService } from '@common/core/context/context.service';
 import { REPOSITORY } from '@common/constant';
 import { Repository } from '@common/core/repository';
-import { GetAuthCredentialDto } from '@common/dto/service/auth_credential.dto';
+import { GetAuthCredentialDto } from '@common/dto/shared/auth_credential.dto';
 import { parseGrpcPath } from '@common/utils/regex';
 
 @AppService()

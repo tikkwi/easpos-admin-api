@@ -1,9 +1,7 @@
 import { BadRequestException, ForbiddenException, Inject } from '@nestjs/common';
 import { CategoryService } from '@common/service/category/category.service';
 import { Document } from 'mongoose';
-import { MerchantPurchaseService } from '@app/subscription/subscription.service';
 import { ConfigService } from '@nestjs/config';
-import { MailService } from '@common/service/mail/mail.service';
 import { AppService } from '@common/decorator/app_service.decorator';
 import { CoreService } from '@common/core/service/core.service';
 import {
@@ -11,25 +9,23 @@ import {
    MerchantServiceMethods,
    MerchantUserLoginDto,
    MerchantVerifyDto,
-} from '@common/dto/service/merchant.dto';
+} from '@common/dto/shared/merchant.dto';
 import { ContextService } from '@common/core/context/context.service';
-import { AppRedisService } from '@common/core/app_redis/app_redis.service';
-import { PRE_END_SUB_MAIL, REPOSITORY } from '@common/constant';
+import { REPOSITORY } from '@common/constant';
 import { Repository } from '@common/core/repository';
 import { FindByIdDto } from '@common/dto/global/core.dto';
-import { ECategory, EMail, EStatus, ESubscription, EUserApp } from '@common/utils/enum';
+import { EStatus, ESubscription, EUserApp } from '@common/utils/enum';
 import { $dayjs } from '@common/utils/datetime';
+import { AppPurchaseService } from '@app/purchase/purchase.service';
 
 @AppService()
-export class MerchantService extends CoreService implements MerchantServiceMethods {
+export class MerchantService extends CoreService<Merchant> implements MerchantServiceMethods {
    constructor(
       protected readonly context: ContextService,
       private readonly config: ConfigService,
-      private readonly db: AppRedisService,
-      private readonly mailService: MailService,
       private readonly categoryService: CategoryService,
-      private readonly purchaseService: MerchantPurchaseService,
-      @Inject(REPOSITORY) private readonly repository: Repository<Merchant>,
+      private readonly purchaseService: AppPurchaseService,
+      @Inject(REPOSITORY) protected readonly repository: Repository<Merchant>,
    ) {
       super();
    }
@@ -38,52 +34,15 @@ export class MerchantService extends CoreService implements MerchantServiceMetho
       return { data: 'You hi me..' };
    }
 
-   async getMerchant({ id, errorOnNotFound = true }: FindByIdDto) {
-      return await this.repository.findOne({ id, errorOnNotFound });
-   }
+   async merchantWithAuth({ id }: FindByIdDto) {
+      const { data: merchant } = await this.findById({ id, errorOnNotFound: true });
 
-   async merchantWithAuth({ id, lean }: FindByIdDto) {
-      const { data: merchant } = await this.repository.findOne({ id, options: { lean } });
-      if (merchant.status.status === EStatus.Active) {
-         const {
-            data: { purchases, isSubActive, subEnd },
-         } = await this.purchaseService.subMonitor({ ids: merchant.activePurchases as any });
+      const isSubActive =
+         merchant.status.status === EStatus.Active
+            ? (await this.purchaseService.subMonitor({ id: merchant.id })).data
+            : false;
 
-         merchant.activePurchases = purchases;
-         let preSubEnd, isPreSubEnd;
-         if (isSubActive && subEnd) {
-            preSubEnd = $dayjs(subEnd).add(this.config.get(PRE_END_SUB_MAIL), 'days');
-            isPreSubEnd = $dayjs().isAfter(preSubEnd);
-         }
-
-         if (
-            (subEnd && !isSubActive && !merchant.sentSubEndMail) ||
-            (isPreSubEnd && !merchant.sentPreSubEndMail)
-         ) {
-            this.mailService.sendMail({
-               mail: merchant.mail,
-               type: isSubActive
-                  ? EMail.MerchantPreSubscriptionExpire
-                  : EMail.MerchantSubscriptionExpire,
-               expirePayload: isSubActive ? undefined : { expireDate: subEnd },
-               preExpirePayload: isSubActive ? { expireDate: preSubEnd } : undefined,
-            });
-         }
-
-         if (isSubActive)
-            return {
-               data: {
-                  merchant,
-                  isSubActive,
-               },
-            };
-      }
-      return {
-         data: {
-            merchant,
-            isSubActive: false,
-         },
-      };
+      return { data: { merchant, isSubActive } };
    }
 
    async loginUser({ id, userId, name, app }: MerchantUserLoginDto) {
@@ -91,7 +50,7 @@ export class MerchantService extends CoreService implements MerchantServiceMetho
       const purchase = data.merchant.activePurchases[0];
       const loggedInUsers = data.merchant.loggedInUsers;
 
-      if (purchase?.type !== ESubscription.Offline) {
+      if (purchase?.type.type !== ESubscription.Offline) {
          const isSellerApp = app === EUserApp.Seller;
          const isAdminLoggedIn = loggedInUsers.some(({ app }) => app === EUserApp.Admin);
          const availableSlots = purchase.numUser - loggedInUsers.length;
@@ -105,12 +64,7 @@ export class MerchantService extends CoreService implements MerchantServiceMetho
    }
 
    async createMerchant({ category, ...dto }: CreateMerchantDto) {
-      const { data: type } = category.id
-         ? await this.categoryService.getCategory({ id: category.id })
-         : await this.categoryService.createCategory({
-              name: category.name,
-              type: ECategory.Merchant,
-           });
+      const { data: type } = await this.categoryService.getCategory(category);
 
       const merchant: Document<unknown, unknown, Merchant> & Merchant =
          await this.repository.custom(
@@ -126,7 +80,7 @@ export class MerchantService extends CoreService implements MerchantServiceMetho
    }
 
    async requestVerification({ id }: FindByIdDto) {
-      const { data } = await this.getMerchant({ id });
+      const { data } = await this.findById({ id });
       if (data.verified) throw new BadRequestException('Merchant already verified');
       const code = Math.floor(Math.random() * 1000000).toString();
       const { data: merchant } = await this.repository.findAndUpdate({
@@ -137,7 +91,7 @@ export class MerchantService extends CoreService implements MerchantServiceMetho
    }
 
    async verify({ id, code }: MerchantVerifyDto) {
-      const { data: merchant } = await this.getMerchant({ id });
+      const { data: merchant } = await this.findById({ id });
       if (!merchant.mfa) throw new BadRequestException('Request verification code first');
       if ($dayjs().isAfter($dayjs(merchant.mfa.expireAt))) throw new BadRequestException('Expired');
       if (code !== merchant.mfa.code) throw new BadRequestException('Invalid code');

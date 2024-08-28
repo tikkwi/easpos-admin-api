@@ -1,21 +1,18 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { MerchantPurchaseService } from './subscription.service';
-import { MailModule } from '@service/mail/mail.module';
-import {
-   MerchantSubscription,
-   MerchantSubscriptionSchema,
-} from '@app/subscription/subscription.schema';
+import { AppSubscriptionService } from './subscription.service';
+import { AppSubscription, AppSubscriptionSchema } from '@app/subscription/subscription.schema';
 import { getRepositoryProvider } from '@common/utils/misc';
+import { AppSubscriptionController } from '@app/subscription/subscription.controller';
+import { AppMailModule } from '@app/mail/mail.module';
 
 @Module({
    imports: [
-      MongooseModule.forFeature([
-         { name: MerchantSubscription.name, schema: MerchantSubscriptionSchema },
-      ]),
-      MailModule,
+      MongooseModule.forFeature([{ name: AppSubscription.name, schema: AppSubscriptionSchema }]),
+      AppMailModule,
    ],
-   providers: [MerchantPurchaseService, getRepositoryProvider({ name: MerchantSubscription.name })],
-   exports: [MerchantPurchaseService],
+   controllers: [AppSubscriptionController],
+   providers: [AppSubscriptionService, getRepositoryProvider({ name: AppSubscription.name })],
+   exports: [AppSubscriptionService],
 })
-export class MerchantPurchaseModule {}
+export class AppSubscriptionModule {}

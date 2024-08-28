@@ -6,7 +6,7 @@ import { MerchantService } from './merchant.service';
 import { MerchantGrpcController } from './merchant.grpc.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MerchantPurchaseModule } from '@app/subscription/subscription.module';
-import { Merchant, MerchantSchema } from '@app/merchant/merchant.schema';
+import { Merchant, MerchantSchema } from '@common/schema/merchant.schema';
 import { AppConfigModule } from '@app/config/config.module';
 import { getRepositoryProvider } from '@common/utils/misc';
 
