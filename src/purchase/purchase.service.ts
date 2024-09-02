@@ -1,4 +1,3 @@
-import { CoreService } from '@common/core/service/core.service';
 import { Repository } from '@common/core/repository';
 import { ContextService } from '@common/core/context/context.service';
 import { Inject } from '@nestjs/common';
@@ -10,8 +9,9 @@ import { $dayjs, getPeriodDate } from '@common/utils/datetime';
 import { MerchantService } from '@app/merchant/merchant.service';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from '@common/service/mail/mail.service';
+import { PurchaseService } from '@common/service/purchase/purchase.service';
 
-export class AppPurchaseService extends CoreService<AppPurchase> {
+export class AppPurchaseService extends PurchaseService {
    constructor(
       protected readonly context: ContextService,
       private readonly config: ConfigService,
@@ -20,6 +20,10 @@ export class AppPurchaseService extends CoreService<AppPurchase> {
       @Inject(REPOSITORY) protected readonly repository: Repository<AppPurchase>,
    ) {
       super();
+   }
+
+   async getPrice(dto) {
+      return { data: 0 };
    }
 
    async subMonitor({ id }: FindByIdDto) {

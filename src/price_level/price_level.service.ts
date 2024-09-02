@@ -5,17 +5,21 @@ import { Inject } from '@nestjs/common';
 import { REPOSITORY } from '@common/constant';
 import { Repository } from '@common/core/repository';
 import { AppPriceLevel } from '@app/price_level/price_level.schema';
-import { GetApplicablePriceLevelDto, GetLevelAllowanceDto } from '@app/price_level/price_level.dto';
-import { AppSubscriptionService } from '@app/subscription/subscription.service';
+import {
+   GetApplicablePriceLevelDto,
+   GetApplicableSubscriptionPriceLevelDto,
+   GetLevelAllowanceDto,
+} from '@app/price_level/price_level.dto';
 import { EPrice, EStatus, ESubscription } from '@common/utils/enum';
 import { AppCurrencyService } from '@app/currency/currency.service';
 import { AppCategoryService } from '@app/category/category.service';
+import { AppPriceService } from '@app/price/price.service';
 
 @AppService()
 export class AppPriceLevelService extends PriceLevelService {
    constructor(
       protected readonly context: ContextService,
-      private readonly subscriptionService: AppSubscriptionService,
+      private readonly priceService: AppPriceService,
       private readonly currencyService: AppCurrencyService,
       private readonly categoryService: AppCategoryService,
       @Inject(REPOSITORY) protected readonly repository: Repository<AppPriceLevel>,
@@ -26,15 +30,20 @@ export class AppPriceLevelService extends PriceLevelService {
    async getPrice({
       currencyId,
       paymentMethodId,
-      subscriptionId,
+      priceId,
       addedUser,
-   }: GetApplicablePriceLevelDto) {
-      const { data: subscription } = await this.subscriptionService.findById({
-         id: subscriptionId,
+   }: GetApplicableSubscriptionPriceLevelDto) {
+      const {
+         data: { _id, basePrice, addedUserPrice },
+      } = await this.priceService.findById({
+         id: priceId,
          errorOnNotFound: true,
       });
       const { data: priceLevels } = await this.repository.find({
-         filter: { subscription: subscriptionId, 'status.status': EStatus.Active },
+         filter: {
+            applicablePrices: { $elemMatch: { $eq: _id } },
+            'status.status': EStatus.Active,
+         },
       });
       const { data: paymentMethod } = await this.categoryService.findById({
          id: paymentMethodId,
@@ -45,10 +54,10 @@ export class AppPriceLevelService extends PriceLevelService {
          errorOnNotFound: true,
       });
       const price =
-         subscription.basePrice +
+         basePrice +
          ([ESubscription.Dedicated, ESubscription.SharedSubscription].includes(subscription.type) &&
          addedUser
-            ? addedUser * subscription.addedUserPrice
+            ? addedUser * addedUserPrice
             : 0);
 
       if (priceLevels) {

@@ -1,20 +1,11 @@
-import { IsMongoId, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import { IsNumber, IsOptional } from 'class-validator';
 import { AppCurrency } from '@app/currency/currency.schema';
 import { Category } from '@common/schema/category.schema';
 import { AppPriceLevel } from '@app/price_level/price_level.schema';
+import { GetApplicablePriceLevelDto } from '@common/dto/service/price_level.dto';
 
-export class GetApplicablePriceLevelDto {
-   @IsMongoId()
-   currencyId: string;
-
-   @IsMongoId()
-   paymentMethodId: string;
-
-   @IsMongoId()
-   subscriptionId: string;
-
+export class GetApplicableSubscriptionPriceLevelDto extends GetApplicablePriceLevelDto {
    @IsOptional()
-   @IsNotEmpty()
    @IsNumber()
    addedUser?: number;
 }

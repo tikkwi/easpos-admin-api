@@ -4,7 +4,7 @@ import { EPrice } from '@common/utils/enum';
 import { IsAppEnum } from '@common/validator/is_app_enum';
 import { AppProp } from '@common/decorator/app_prop.decorator';
 import { SchemaTypes } from 'mongoose';
-import { AppSubscription } from '@app/subscription/subscription.schema';
+import { AppPrice } from '@app/price/price.schema';
 
 const allowedLevels = [
    EPrice.SpendBase,
@@ -25,8 +25,8 @@ export class AppPriceLevel extends PriceLevel {
    @AppProp({ type: Boolean, default: false })
    addedUser: boolean;
 
-   @AppProp({ type: SchemaTypes.ObjectId, ref: 'AppSubscription' })
-   subscription: AppSubscription;
+   @AppProp({ type: [{ type: SchemaTypes.ObjectId, ref: 'AppPrice' }] })
+   applicablePrices: AppPrice[];
 }
 
 export const AppPriceLevelSchema = SchemaFactory.createForClass(AppPriceLevel);
