@@ -1,4 +1,4 @@
-import { MailService } from '@common/service/mail/mail.service';
+import { MailService } from '@common/service/mail.service';
 import { ContextService } from '@common/core/context/context.service';
 import { Inject } from '@nestjs/common';
 import { REPOSITORY } from '@common/constant';

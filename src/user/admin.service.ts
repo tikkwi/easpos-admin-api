@@ -6,7 +6,7 @@ import { AppRedisService } from '@common/core/app_redis/app_redis.service';
 import { REPOSITORY } from '@common/constant';
 import { Repository } from '@common/core/repository';
 import { LoginDto } from '@common/dto/global/user.dto';
-import { UserService } from '@common/service/user/user.service';
+import { UserService } from '@common/service/user.service';
 
 @AppService()
 export class AdminService extends UserService {

@@ -1,5 +1,5 @@
 import { AppService } from '@common/decorator/app_service.decorator';
-import { AllowanceCodeService } from '@common/service/allowance_code/allowance_code.service';
+import { AllowanceCodeService } from '@common/service/allowance_code.service';
 import { ContextService } from '@common/core/context/context.service';
 import { Inject } from '@nestjs/common';
 import { REPOSITORY } from '@common/constant';

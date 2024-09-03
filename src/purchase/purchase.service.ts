@@ -8,8 +8,8 @@ import { EMail, EStatus, ESubscription } from '@common/utils/enum';
 import { $dayjs, getPeriodDate } from '@common/utils/datetime';
 import { MerchantService } from '@app/merchant/merchant.service';
 import { ConfigService } from '@nestjs/config';
-import { MailService } from '@common/service/mail/mail.service';
-import { PurchaseService } from '@common/service/purchase/purchase.service';
+import { MailService } from '@common/service/mail.service';
+import { PurchaseService } from '@common/service/purchase.service';
 
 export class AppPurchaseService extends PurchaseService {
    constructor(

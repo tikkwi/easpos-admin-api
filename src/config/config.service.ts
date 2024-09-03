@@ -1,5 +1,5 @@
 import { AppService } from '@common/decorator/app_service.decorator';
-import { ConfigService } from '@common/service/config/config.service';
+import { ConfigService } from '@common/service/config.service';
 import { ContextService } from '@common/core/context/context.service';
 import { Inject } from '@nestjs/common';
 import { REPOSITORY } from '@common/constant';

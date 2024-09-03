@@ -5,6 +5,9 @@ import { IsAppEnum } from '@common/validator/is_app_enum';
 import { AppProp } from '@common/decorator/app_prop.decorator';
 import { SchemaTypes } from 'mongoose';
 import { AppPrice } from '@app/price/price.schema';
+import { AppCurrency } from '@app/currency/currency.schema';
+import { ValidateIf } from 'class-validator';
+import { Category } from '@common/schema/category.schema';
 
 const allowedLevels = [
    EPrice.SpendBase,
@@ -25,8 +28,17 @@ export class AppPriceLevel extends PriceLevel {
    @AppProp({ type: Boolean, default: false })
    addedUser: boolean;
 
+   @ValidateIf((o) => o.perProduct)
    @AppProp({ type: [{ type: SchemaTypes.ObjectId, ref: 'AppPrice' }] })
    applicablePrices: AppPrice[];
+
+   @ValidateIf((o) => o.type === EPrice.Currency)
+   @AppProp({ type: SchemaTypes.ObjectId, ref: 'AppCurrency', required: false })
+   currency?: AppCurrency;
+
+   @ValidateIf((o) => o.type === EPrice.PaymentMethod)
+   @AppProp({ type: SchemaTypes.ObjectId, ref: 'AppCategory', required: false })
+   paymentMethod?: Category;
 }
 
 export const AppPriceLevelSchema = SchemaFactory.createForClass(AppPriceLevel);

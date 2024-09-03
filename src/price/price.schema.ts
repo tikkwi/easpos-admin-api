@@ -4,7 +4,7 @@ import { ValidateIf } from 'class-validator';
 import { ESubscription } from '@common/utils/enum';
 import { AppProp } from '@common/decorator/app_prop.decorator';
 import { SchemaTypes } from 'mongoose';
-import { Subscription } from '@app/subscription/subscription.schema';
+import { AppSubscription } from '@app/subscription/subscription.schema';
 
 @Schema()
 export class AppPrice extends Price {
@@ -14,7 +14,7 @@ export class AppPrice extends Price {
    addedUserPrice: number;
 
    @AppProp({ type: SchemaTypes.ObjectId, ref: 'Subscription' })
-   product: Subscription;
+   product: AppSubscription;
 }
 
 export const AppPriceSchema = SchemaFactory.createForClass(AppPrice);
