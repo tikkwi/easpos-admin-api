@@ -8,6 +8,43 @@ services:
     volumes:
       - 'redis-data:/data'
 
+  mongo1:
+    container_name: mongo1
+    image: mongo:latest
+    restart: always
+    volumes:
+      - mongo1-data:/data/db
+    ports:
+      - "27017:27017"
+    command: [ "mongod", "--replSet", "rs0", "--bind_ip_all", '--port', '27017' ]
+    networks:
+      - mongo-cluster
+
+  mongo2:
+    container_name: mongo2
+    image: mongo:latest
+    restart: always
+    volumes:
+      - mongo2-data:/data/db
+    ports:
+      - "27018:27018"
+    command: [ "mongod", "--replSet", "rs0", "--bind_ip_all", '--port', '27018' ]
+    networks:
+      - mongo-cluster
+
+  mongo3:
+    container_name: mongo3
+    image: mongo:latest
+    restart: always
+    volumes:
+      - mongo3-data:/data/db
+    ports:
+      - "27019:27019"
+    command: [ "mongod", "--replSet", "rs0", "--bind_ip_all", '--port', '27019' ]
+    networks:
+      - mongo-cluster
+
+
 #  app:
 #    container_name: app
 #    build:
@@ -26,3 +63,13 @@ services:
 volumes:
   redis-data:
     driver: local
+  mongo1-data:
+    driver: local
+  mongo2-data:
+    driver: local
+  mongo3-data:
+    driver: local
+
+networks:
+  mongo-cluster:
+    driver: bridge

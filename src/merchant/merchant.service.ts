@@ -1,28 +1,25 @@
 import { BadRequestException, ForbiddenException, Inject } from '@nestjs/common';
 import { CategoryService } from '@common/service/category/category.service';
 import { Document } from 'mongoose';
-import { ConfigService } from '@nestjs/config';
 import { AppService } from '@common/decorator/app_service.decorator';
-import { CoreService } from '@common/core/service/core.service';
+import { CoreService } from '@common/core/core.service';
 import {
    CreateMerchantDto,
    MerchantServiceMethods,
    MerchantUserLoginDto,
    MerchantVerifyDto,
 } from '@common/dto/shared/merchant.dto';
-import { ContextService } from '@common/core/context/context.service';
 import { REPOSITORY } from '@common/constant';
 import { Repository } from '@common/core/repository';
 import { FindByIdDto } from '@common/dto/global/core.dto';
 import { EStatus, ESubscription, EUserApp } from '@common/utils/enum';
 import { $dayjs } from '@common/utils/datetime';
 import { AppPurchaseService } from '@app/purchase/purchase.service';
+import { ContextService } from '@common/core/context.service';
 
 @AppService()
 export class MerchantService extends CoreService<Merchant> implements MerchantServiceMethods {
    constructor(
-      protected readonly context: ContextService,
-      private readonly config: ConfigService,
       private readonly categoryService: CategoryService,
       private readonly purchaseService: AppPurchaseService,
       @Inject(REPOSITORY) protected readonly repository: Repository<Merchant>,
@@ -59,7 +56,7 @@ export class MerchantService extends CoreService<Merchant> implements MerchantSe
       }
 
       data.merchant.loggedInUsers.push({ app, userId, name });
-      await data.merchant.save({ session: this.context.get('session') });
+      await data.merchant.save({ session: ContextService.get('session') });
       return { data };
    }
 
@@ -76,7 +73,7 @@ export class MerchantService extends CoreService<Merchant> implements MerchantSe
                }),
          );
 
-      return { data: await merchant.save({ session: this.context.get('session') }) };
+      return { data: await merchant.save({ session: ContextService.get('session') }) };
    }
 
    async requestVerification({ id }: FindByIdDto) {

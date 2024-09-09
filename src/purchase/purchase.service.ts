@@ -1,5 +1,4 @@
 import { Repository } from '@common/core/repository';
-import { ContextService } from '@common/core/context/context.service';
 import { Inject } from '@nestjs/common';
 import { PRE_END_SUB_MAIL, REPOSITORY } from '@common/constant';
 import { AppPurchase } from '@app/purchase/purchase.schema';
@@ -10,10 +9,10 @@ import { MerchantService } from '@app/merchant/merchant.service';
 import { ConfigService } from '@nestjs/config';
 import { MailService } from '@common/service/mail.service';
 import { PurchaseService } from '@common/service/purchase.service';
+import { ContextService } from '@common/core/context.service';
 
 export class AppPurchaseService extends PurchaseService {
    constructor(
-      protected readonly context: ContextService,
       private readonly config: ConfigService,
       private readonly mailService: MailService,
       private readonly merchantService: MerchantService,
@@ -50,7 +49,7 @@ export class AppPurchaseService extends PurchaseService {
          const isSubEnd = $dayjs().isAfter(purSubEnd);
          if (isSubEnd) {
             purchase.status = { status: EStatus.Expired };
-            await purchase.save({ session: this.context.get('session') });
+            await purchase.save({ session: ContextService.get('session') });
             subEnd = true;
          } else activePurchases.push(purchase);
       }
@@ -60,7 +59,7 @@ export class AppPurchaseService extends PurchaseService {
          currentPurchase && currentPurchase.type.type !== ESubscription.Offline
             ? getPeriodDate(currentPurchase.subscriptionPeriod, currentPurchase.startDate)
             : undefined;
-      await merchant.save({ session: this.context.get('session') });
+      await merchant.save({ session: ContextService.get('session') });
       const preSubEnd = subEndDate
          ? $dayjs().isAfter($dayjs(subEndDate).add(this.config.get(PRE_END_SUB_MAIL), 'days'))
          : false;
