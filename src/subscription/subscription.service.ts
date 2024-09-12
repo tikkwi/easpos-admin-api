@@ -3,7 +3,7 @@ import { MerchantService } from '../merchant/merchant.service';
 import { AppService } from '@common/decorator/app_service.decorator';
 import { REPOSITORY } from '@common/constant';
 import { Repository } from '@common/core/repository';
-import { ProductService } from '@common/service/product.service';
+import { ProductService } from '@common/service/product/product.service';
 import { AppSubscription } from '@app/subscription/subscription.schema';
 
 @AppService()

@@ -1,7 +1,13 @@
 import { Schema, SchemaFactory } from '@nestjs/mongoose';
-import { AllowanceCode } from '@common/schema/allowance_code.schema';
+import AllowanceCode from '@shared/allowance_code/allowance_code.schema';
+import AppProp from '@common/decorator/app_prop.decorator';
+import { SchemaTypes } from 'mongoose';
+import AppAllowance from '../allowance/allowance.schema';
 
 @Schema()
-export class AppAllowanceCode extends AllowanceCode {}
+export default class AppAllowanceCode extends AllowanceCode {
+   @AppProp({ type: SchemaTypes.ObjectId, ref: 'AppAllowance' })
+   allowance: AppAllowance;
+}
 
 export const AppAllowanceCodeSchema = SchemaFactory.createForClass(AppAllowanceCode);

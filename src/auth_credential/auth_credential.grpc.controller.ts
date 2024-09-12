@@ -1,12 +1,12 @@
-import { AuthCredentialService } from './auth_credential.service';
-import { GrpcHandler } from '@common/decorator/grpc_handler.decorator';
-import { GetAuthCredentialDto } from '@common/dto/shared/auth_credential.dto';
+import { GetAuthCredentialDto } from '@common/dto/auth_credential.dto';
+import GrpcHandler from '@common/decorator/grpc_handler.decorator';
+import AuthCredentialService from './auth_credential.service';
 
 @GrpcHandler()
-export class AuthCredentialGrpcController {
+export default class AuthCredentialGrpcController {
    constructor(private readonly service: AuthCredentialService) {}
 
    async getAuthCredential(dto: GetAuthCredentialDto) {
-      this.service.getAuthCredential(dto);
+      return this.service.getAuthCredential(dto);
    }
 }

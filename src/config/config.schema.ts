@@ -1,9 +1,9 @@
 import { Schema, SchemaFactory } from '@nestjs/mongoose';
-import { AppProp } from '@common/decorator/app_prop.decorator';
-import { Config } from '@common/schema/config.schema';
+import AppProp from '@common/decorator/app_prop.decorator';
+import BaseSchema from '@common/core/base.schema';
 
 @Schema()
-export class AppConfig extends Config {
+export default class AppConfig extends BaseSchema {
    @AppProp({ type: Number, default: 0 })
    pre_sub_end_mail: number;
 }

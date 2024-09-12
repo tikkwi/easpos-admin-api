@@ -1,10 +1,10 @@
-import { AdminService } from './admin.service';
-import { AppController } from '@common/decorator/app_controller.decorator';
+import AppController from '@common/decorator/app_controller.decorator';
 import { EAllowedUser } from '@common/utils/enum';
-import { CoreController } from '@common/core/core.controller';
+import CoreController from '@common/core/core.controller';
+import AdminService from './admin.service';
 
-@AppController('user', [EAllowedUser.Admin])
-export class AdminController extends CoreController {
+@AppController('user', { admin: [EAllowedUser.Admin] })
+export default class AdminController extends CoreController {
    constructor(protected readonly service: AdminService) {
       super();
    }

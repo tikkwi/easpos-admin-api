@@ -1,9 +1,9 @@
 import { MerchantService } from './merchant.service';
-import { GrpcHandler } from '@common/decorator/grpc_handler.decorator';
-import { FindByIdDto } from '@common/dto/global/core.dto';
+import { FindByIdDto } from '@common/dto/core.dto';
+import GrpcHandler from '@common/decorator/grpc_handler.decorator';
 
 @GrpcHandler()
-export class MerchantGrpcController {
+export default class MerchantGrpcController {
    constructor(private readonly service: MerchantService) {}
 
    async merchantWithAuth(dto: FindByIdDto) {

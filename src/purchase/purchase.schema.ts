@@ -1,10 +1,9 @@
 import { Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ValidateIf } from 'class-validator';
-import { AppProp } from '@common/decorator/app_prop.decorator';
 import { SchemaTypes } from 'mongoose';
-import { Purchase } from '@common/schema/purchase.schema';
-import { Merchant } from '@common/schema/merchant.schema';
 import { AppSubscription } from '@app/subscription/subscription.schema';
+import Purchase from '@shared/purchase/purchase.schema';
+import AppProp from '@common/decorator/app_prop.decorator';
 
 @Schema()
 export class AppPurchase extends Purchase {

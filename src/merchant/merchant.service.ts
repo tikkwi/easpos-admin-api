@@ -1,28 +1,29 @@
 import { BadRequestException, ForbiddenException, Inject } from '@nestjs/common';
-import { CategoryService } from '@common/service/category/category.service';
 import { Document } from 'mongoose';
-import { AppService } from '@common/decorator/app_service.decorator';
-import { CoreService } from '@common/core/core.service';
 import {
    CreateMerchantDto,
    MerchantServiceMethods,
    MerchantUserLoginDto,
    MerchantVerifyDto,
-} from '@common/dto/shared/merchant.dto';
+} from '@common/dto/merchant.dto';
 import { REPOSITORY } from '@common/constant';
-import { Repository } from '@common/core/repository';
-import { FindByIdDto } from '@common/dto/global/core.dto';
+import { FindByIdDto } from '@common/dto/core.dto';
 import { EStatus, ESubscription, EUserApp } from '@common/utils/enum';
 import { $dayjs } from '@common/utils/datetime';
-import { AppPurchaseService } from '@app/purchase/purchase.service';
-import { ContextService } from '@common/core/context.service';
+import AppService from '@common/decorator/app_service.decorator';
+import CoreService from '@common/core/core.service';
+import { AppPurchaseService } from '../purchase/purchase.service';
+import Repository from '@common/core/repository';
+import ContextService from '@common/core/context.service';
 
 @AppService()
-export class MerchantService extends CoreService<Merchant> implements MerchantServiceMethods {
+export default class MerchantService
+   extends CoreService<Merchant>
+   implements MerchantServiceMethods
+{
    constructor(
-      private readonly categoryService: CategoryService,
-      private readonly purchaseService: AppPurchaseService,
       @Inject(REPOSITORY) protected readonly repository: Repository<Merchant>,
+      private readonly purchaseService: AppPurchaseService,
    ) {
       super();
    }
@@ -61,7 +62,7 @@ export class MerchantService extends CoreService<Merchant> implements MerchantSe
    }
 
    async createMerchant({ category, ...dto }: CreateMerchantDto) {
-      const { data: type } = await this.categoryService.getCategory(category);
+      const { data: type } = await ContextService.get('d_categoryService').getCategory(category);
 
       const merchant: Document<unknown, unknown, Merchant> & Merchant =
          await this.repository.custom(

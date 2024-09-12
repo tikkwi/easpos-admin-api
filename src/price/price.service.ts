@@ -1,5 +1,5 @@
 import { AppService } from '@common/decorator/app_service.decorator';
-import { PriceService } from '@common/service/price.service';
+import { PriceService } from '@common/service/price/price.service';
 import { AppPrice } from '@app/price/price.schema';
 import { AppCategoryService } from '@app/category/category.service';
 import { Inject } from '@nestjs/common';

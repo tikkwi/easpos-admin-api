@@ -1,5 +1,5 @@
 import { Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Price } from '@common/schema/price.schema';
+import { Price } from '@common/service/price/price.schema';
 import { ValidateIf } from 'class-validator';
 import { ESubscription } from '@common/utils/enum';
 import { AppProp } from '@common/decorator/app_prop.decorator';

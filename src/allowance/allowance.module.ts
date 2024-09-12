@@ -1,16 +1,13 @@
 import { Module } from '@nestjs/common';
-import { AppCampaignModule } from '@app/campaign/campaign.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AppAllowance, AppAllowanceSchema } from '@app/allowance/allowance.schema';
-import { AppAllowanceController } from '@app/allowance/allowance.controller';
+import AppAllowance, { AppAllowanceSchema } from './allowance.schema';
+import AllowanceController from '@shared/allowance/allowance.controller';
+import AllowanceService from '@shared/allowance/allowance.service';
 
 @Module({
-   imports: [
-      AppCampaignModule,
-      MongooseModule.forFeature([{ name: AppAllowance.name, schema: AppAllowanceSchema }]),
-   ],
-   controllers: [AppAllowanceController],
-   providers: [AppAllowanceController],
-   exports: [AppAllowanceController],
+   imports: [MongooseModule.forFeature([{ name: AppAllowance.name, schema: AppAllowanceSchema }])],
+   controllers: [AllowanceController],
+   providers: [AllowanceService],
+   exports: [AllowanceService],
 })
-export class AppAllowanceModule {}
+export default class AppAllowanceModule {}

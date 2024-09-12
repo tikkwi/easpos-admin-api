@@ -2,13 +2,13 @@ import { Repository } from '@common/core/repository';
 import { Inject } from '@nestjs/common';
 import { PRE_END_SUB_MAIL, REPOSITORY } from '@common/constant';
 import { AppPurchase } from '@app/purchase/purchase.schema';
-import { FindByIdDto } from '@common/dto/global/core.dto';
+import { FindByIdDto } from '@common/dto/core.dto';
 import { EMail, EStatus, ESubscription } from '@common/utils/enum';
 import { $dayjs, getPeriodDate } from '@common/utils/datetime';
 import { MerchantService } from '@app/merchant/merchant.service';
 import { ConfigService } from '@nestjs/config';
-import { MailService } from '@common/service/mail.service';
-import { PurchaseService } from '@common/service/purchase.service';
+import { MailService } from '@common/service/mail/mail.service';
+import { PurchaseService } from '@common/service/purchase/purchase.service';
 import { ContextService } from '@common/core/context.service';
 
 export class AppPurchaseService extends PurchaseService {
