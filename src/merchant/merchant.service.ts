@@ -1,13 +1,14 @@
-import { BadRequestException, Inject } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Inject } from '@nestjs/common';
 import { Document } from 'mongoose';
 import {
    CreateMerchantDto,
    MerchantServiceMethods,
+   MerchantUserLoginDto,
    MerchantVerifyDto,
 } from '@common/dto/merchant.dto';
 import { REPOSITORY } from '@common/constant';
 import { FindByIdDto } from '@common/dto/core.dto';
-import { EStatus } from '@common/utils/enum';
+import { EStatus, EUserApp } from '@common/utils/enum';
 import { $dayjs } from '@common/utils/datetime';
 import AppService from '@common/decorator/app_service.decorator';
 import CoreService from '@common/core/core.service';
@@ -52,25 +53,25 @@ export default class MerchantService
       return { data: { merchant, isSubActive } };
    }
 
-   // async loginUser({ id, userId, name, app }: MerchantUserLoginDto) {
-   //    const {
-   //       data: { merchant, isSubActive },
-   //    } = await this.merchantWithAuth({ id, lean: true });
-   //    const purchase = data.merchant.activePurchases[0];
-   //    const loggedInUsers = data.merchant.loggedInUsers;
-   //
-   //    if (purchase?.type.type !== ESubscription.Offline) {
-   //       const isSellerApp = app === EUserApp.Seller;
-   //       const isAdminLoggedIn = loggedInUsers.some(({ app }) => app === EUserApp.Admin);
-   //       const availableSlots = purchase.numUser - loggedInUsers.length;
-   //       if (availableSlots <= 0 || (availableSlots === 1 && isSellerApp && !isAdminLoggedIn))
-   //          throw new ForbiddenException('No Available slot to login');
-   //    }
-   //
-   //    data.merchant.loggedInUsers.push({ app, userId, name });
-   //    await data.merchant.save({ session: ContextService.get('session') });
-   //    return { data };
-   // }
+   async loginUser({ id, userId, name, app }: MerchantUserLoginDto) {
+      const { data } = await this.merchantWithAuth({ id, lean: false });
+      if ([EUserApp.Customer, EUserApp.Partner].includes(app)) return data;
+      const isAdminLoggedIn = data.merchant.loggedInUsers.some(({ app }) => app === EUserApp.Admin);
+      const availableSlots =
+         (data.merchant.offlinePurchase
+            ? data.merchant.offlinePurchase.allowanceCount
+            : data.merchant.subscriptionPurchase?.activePurchase?.allowanceCount ?? 0) - 1;
+      const isSlotLeft =
+         availableSlots < -1
+            ? false
+            : availableSlots === -1
+              ? app === EUserApp.Seller && isAdminLoggedIn
+              : true;
+      if (!isSlotLeft) throw new ForbiddenException('No available slot to login');
+      data.merchant.loggedInUsers.push({ app, userId, name });
+      await data.merchant.save({ session: ContextService.get('session') });
+      return data;
+   }
 
    async createMerchant({ category, ...dto }: CreateMerchantDto) {
       const { data: type } = await ContextService.get('d_categoryService').getCategory(category);
