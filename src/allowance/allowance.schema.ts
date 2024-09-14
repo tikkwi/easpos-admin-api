@@ -4,7 +4,7 @@ import { IsBoolean, IsNumber } from 'class-validator';
 import { SchemaTypes } from 'mongoose';
 import AppProp from '@common/decorator/app_prop.decorator';
 import Allowance from '@shared/allowance/allowance.schema';
-import IsAppEnum from '@common/validator/is_app_enum';
+import { IsAppEnum } from '@common/validator';
 
 class AllowanceBenefit {
    @IsBoolean()

@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { REPOSITORY } from '@common/constant';
-import { Repository } from '@common/core/repository';
+import Repository from '@common/core/repository';
 
 @Injectable()
 @Throttle({ default: {} })
