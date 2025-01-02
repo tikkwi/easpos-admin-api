@@ -1,16 +1,12 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { getRepositoryProvider } from '@common/utils/misc';
-import AuthCredential, { AuthCredentialSchema } from '@common/schema/auth_credential.schema';
+import { AuthCredentialSchema } from '@common/schema/auth_credential.schema';
 import AuthCredentialGrpcController from './auth_credential.grpc.controller';
 import AuthCredentialService from './auth_credential.service';
+import { SCHEMA } from '@common/constant';
 
 @Module({
-   imports: [
-      MongooseModule.forFeature([{ name: AuthCredential.name, schema: AuthCredentialSchema }]),
-   ],
    controllers: [AuthCredentialGrpcController],
-   providers: [AuthCredentialService, getRepositoryProvider({ name: AuthCredential.name })],
+   providers: [AuthCredentialService, { provide: SCHEMA, useValue: AuthCredentialSchema }],
    exports: [AuthCredentialService],
 })
 export default class AuthCredentialModule {}

@@ -1,0 +1,54 @@
+import APriceAdjustment from '@common/schema/price_adjustment.schema';
+import AppProp from '@common/decorator/app_prop.decorator';
+import { Schema } from '@nestjs/mongoose';
+import { EPriceAdjustment } from '@common/utils/enum';
+import { IsAppEnum } from '@common/validator';
+import { Max, Min, ValidateIf } from 'class-validator';
+import { SchemaTypes } from 'mongoose';
+
+export class Adjustment {
+   @ValidateIf((o) => !o.absoluteAdjustment)
+   @Min(0.001)
+   @Max(100)
+   percentageAdjustment?: number;
+
+   @ValidateIf((o) => !o.percentageAdjustment)
+   @Min(0.001)
+   @Max(100)
+   absoluteAdjustment?: number;
+}
+
+@Schema()
+export class PriceAdjustment extends APriceAdjustment {
+   @AppProp(
+      { type: String, enum: EPriceAdjustment },
+      {
+         validateEnum: false,
+         validators: [
+            {
+               func: IsAppEnum,
+               args: [
+                  EPriceAdjustment,
+                  {
+                     pick: [
+                        EPriceAdjustment.Time,
+                        EPriceAdjustment.Spend,
+                        EPriceAdjustment.PaymentMethod,
+                        EPriceAdjustment.Currency,
+                     ],
+                  },
+               ],
+            },
+         ],
+      },
+   )
+   types: Array<
+      | EPriceAdjustment.Time
+      | EPriceAdjustment.Spend
+      | EPriceAdjustment.PaymentMethod
+      | EPriceAdjustment.Currency
+   >;
+
+   @AppProp({ type: SchemaTypes.Mixed }, { type: Adjustment })
+   adjustment: Adjustment;
+}

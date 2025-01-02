@@ -1,19 +1,15 @@
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
-import { getRepositoryProvider } from '@common/utils/misc';
-import Merchant, { MerchantSchema } from '@common/schema/merchant.schema';
+import { MerchantSchema } from '@common/schema/merchant.schema';
 import MerchantGrpcController from './merchant.grpc.controller';
-import PurchasedSubscriptionModule from '@shared/purchased_subscription/purchased_subscription.module';
 import MerchantController from './merchant.controller';
 import MerchantService from './merchant.service';
+import { SCHEMA } from '@common/constant';
+import SubscriptionModule from '../subscription/subscription.module';
 
 @Module({
-   imports: [
-      MongooseModule.forFeature([{ name: Merchant.name, schema: MerchantSchema }]),
-      PurchasedSubscriptionModule,
-   ],
+   imports: [SubscriptionModule],
    controllers: [MerchantController, MerchantGrpcController],
-   providers: [MerchantService, getRepositoryProvider({ name: Merchant.name })],
+   providers: [MerchantService, { provide: SCHEMA, useValue: MerchantSchema }],
    exports: [MerchantService],
 })
 export class MerchantModule {}

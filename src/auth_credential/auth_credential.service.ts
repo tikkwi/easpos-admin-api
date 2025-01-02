@@ -1,18 +1,13 @@
-import { BadRequestException, Inject } from '@nestjs/common';
-import { REPOSITORY } from '@common/constant';
+import { BadRequestException } from '@nestjs/common';
 import { GetAuthCredentialDto } from '@common/dto/auth_credential.dto';
 import { parseGrpcPath } from '@common/utils/regex';
 import AppService from '@common/decorator/app_service.decorator';
-import CoreService from '@common/core/core.service';
-import Repository from '@common/core/repository';
+import BaseService from '@common/core/base/base.service';
 
 @AppService()
-export default class AuthCredentialService extends CoreService<AuthCredential> {
-   constructor(@Inject(REPOSITORY) protected readonly repository: Repository<AuthCredential>) {
-      super();
-   }
-
+export default class AuthCredentialService extends BaseService<AuthCredential> {
    async getAuthCredential({ url, ip }: GetAuthCredentialDto) {
+      const repository = await this.getRepository();
       const [_, srv, pth] = parseGrpcPath(url);
       const isRpc = url.includes('_PACKAGE');
 
@@ -26,7 +21,7 @@ export default class AuthCredentialService extends CoreService<AuthCredential> {
               },
            }
          : { authPaths: { $elemMatch: { $eq: url } } };
-      const { data } = await this.repository.findOne({ filter });
+      const { data } = await repository.findOne({ filter });
       return { data };
    }
 }

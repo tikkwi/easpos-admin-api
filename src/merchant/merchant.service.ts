@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Inject } from '@nestjs/common';
+import { BadRequestException, ForbiddenException } from '@nestjs/common';
 import { Document } from 'mongoose';
 import {
    CreateMerchantDto,
@@ -6,24 +6,24 @@ import {
    MerchantUserLoginDto,
    MerchantVerifyDto,
 } from '@common/dto/merchant.dto';
-import { REPOSITORY } from '@common/constant';
 import { FindByIdDto } from '@common/dto/core.dto';
 import { EStatus, EUserApp } from '@common/utils/enum';
 import { $dayjs } from '@common/utils/datetime';
 import AppService from '@common/decorator/app_service.decorator';
-import CoreService from '@common/core/core.service';
-import Repository from '@common/core/repository';
-import ContextService from '@common/core/context.service';
-import PurchasedSubscriptionService from '@shared/purchased_subscription/purchased_subscription.service';
+import BaseService from '@common/core/base/base.service';
+import SubscriptionService from '../subscription/subscription.service';
+import RequestContextService from '@common/core/request_context/request_context_service';
+import Merchant from '@common/schema/merchant.schema';
+import CategoryService from '@shared/category/category.service';
 
 @AppService()
 export default class MerchantService
-   extends CoreService<Merchant>
+   extends BaseService<Merchant>
    implements MerchantServiceMethods
 {
    constructor(
-      @Inject(REPOSITORY) protected readonly repository: Repository<Merchant>,
-      private readonly purSubService: PurchasedSubscriptionService,
+      private readonly subscriptionService: SubscriptionService,
+      private readonly categoryService: CategoryService,
    ) {
       super();
    }
@@ -33,67 +33,53 @@ export default class MerchantService
    }
 
    async merchantWithAuth({ id }: FindByIdDto) {
-      const { data: merchant } = await this.findById({
-         id,
-         errorOnNotFound: true,
-         populate: ['offlinePurchase'],
-      });
-
-      let isSubActive = merchant.offlinePurchase?.status?.status === EStatus.Active;
-      if (!isSubActive && merchant.subscriptionPurchase) {
-         const {
-            data: { activePurchase },
-         } = await this.purSubService.subMonitor({
-            id: merchant._id,
-            mail: merchant.mail,
-         });
-         isSubActive = activePurchase?.status?.status === EStatus.Active;
-      }
-
-      return { data: { merchant, isSubActive } };
+      const { data: merchant } = await this.findById({ id });
+      const { data: subscription } = await this.subscriptionService.subMonitor({ id });
+      return {
+         data: { merchant, subscription, isSubActive: subscription?.status === EStatus.Active },
+      };
    }
 
    async loginUser({ id, userId, name, app }: MerchantUserLoginDto) {
-      const { data } = await this.merchantWithAuth({ id, lean: false });
-      if ([EUserApp.Customer, EUserApp.Partner].includes(app)) return data;
-      const isAdminLoggedIn = data.merchant.loggedInUsers.some(({ app }) => app === EUserApp.Admin);
-      const availableSlots =
-         (data.merchant.offlinePurchase
-            ? data.merchant.offlinePurchase.allowanceCount
-            : data.merchant.subscriptionPurchase?.activePurchase?.allowanceCount ?? 0) - 1;
-      const isSlotLeft =
-         availableSlots < -1
-            ? false
-            : availableSlots === -1
-              ? app === EUserApp.Seller && isAdminLoggedIn
-              : true;
-      if (!isSlotLeft) throw new ForbiddenException('No available slot to login');
-      data.merchant.loggedInUsers.push({ app, userId, name });
-      await data.merchant.save({ session: ContextService.get('session') });
-      return data;
+      const {
+         data: { merchant, subscription, isSubActive },
+      } = await this.merchantWithAuth({ id, lean: false });
+      const context = await this.moduleRef.resolve(RequestContextService);
+      if (![EUserApp.Customer, EUserApp.Partner].includes(app) && !!subscription) {
+         const numAllowedUser =
+            app === EUserApp.Admin
+               ? subscription.extraAdminCount + subscription.subscriptionType.baseAdminCount
+               : subscription.extraEmployeeCount + subscription.subscriptionType.baseEmployeeCount;
+         const numLoggedInUser = merchant.loggedInUsers.filter(({ app }) => app).length;
+         const isSlotLeft = numAllowedUser - numLoggedInUser > 0;
+         if (!isSlotLeft) throw new ForbiddenException('No available slot to login');
+         merchant.loggedInUsers.push({ app, userId, name });
+         await merchant.save({ session: context.get('session') });
+      }
+      return { data: { merchant, subscription, isSubActive } };
    }
 
    async createMerchant({ category, ...dto }: CreateMerchantDto) {
-      const { data: type } = await ContextService.get('d_categoryService').getCategory(category);
-
-      const merchant: Document<unknown, unknown, Merchant> & Merchant =
-         await this.repository.custom(
-            async (model) =>
-               new model({
-                  ...dto,
-                  status: EStatus.Pending,
-                  type,
-               }),
-         );
-
-      return { data: await merchant.save({ session: ContextService.get('session') }) };
+      const context = await this.moduleRef.resolve(RequestContextService);
+      const repository = await this.getRepository();
+      const { data: type } = await this.categoryService.getCategory(category);
+      const merchant: Document<unknown, unknown, Merchant> & Merchant = await repository.custom(
+         async (model) =>
+            new model({
+               ...dto,
+               status: EStatus.Pending,
+               type,
+            }),
+      );
+      return { data: await merchant.save({ session: context.get('session') }) };
    }
 
    async requestVerification({ id }: FindByIdDto) {
+      const repository = await this.getRepository();
       const { data } = await this.findById({ id });
       if (data.verified) throw new BadRequestException('Merchant already verified');
       const code = Math.floor(Math.random() * 1000000).toString();
-      const { data: merchant } = await this.repository.findAndUpdate({
+      const { data: merchant } = await repository.findAndUpdate({
          id: data._id,
          update: { mfa: { code, expireAt: $dayjs().add(1, 'minutes').toDate() } },
       });
