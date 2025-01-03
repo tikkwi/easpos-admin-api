@@ -11,9 +11,9 @@ import { EStatus, EUserApp } from '@common/utils/enum';
 import { $dayjs } from '@common/utils/datetime';
 import AppService from '@common/decorator/app_service.decorator';
 import BaseService from '@common/core/base/base.service';
-import SubscriptionService from '../subscription/subscription.service';
+import AppSubscriptionService from '../app_subscription/app_subscription.service';
 import RequestContextService from '@common/core/request_context/request_context_service';
-import Merchant from '@common/schema/merchant.schema';
+import Merchant from '@common/schema/ms/merchant.schema';
 import CategoryService from '@shared/category/category.service';
 
 @AppService()
@@ -22,7 +22,7 @@ export default class MerchantService
    implements MerchantServiceMethods
 {
    constructor(
-      private readonly subscriptionService: SubscriptionService,
+      private readonly subscriptionService: AppSubscriptionService,
       private readonly categoryService: CategoryService,
    ) {
       super();

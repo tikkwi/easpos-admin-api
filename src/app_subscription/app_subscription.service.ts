@@ -3,11 +3,11 @@ import MailService from '@shared/mail/mail.service';
 import { EMail, EStatus } from '@common/utils/enum';
 import { Injectable } from '@nestjs/common';
 import BaseService from '@common/core/base/base.service';
-import Subscription from '@common/schema/subscription.schema';
+import AppSubscription from '@common/schema/ms/app_subscription.schema';
 import { FindByIdDto } from '@common/dto/core.dto';
 
 @Injectable()
-export default class SubscriptionService extends BaseService<Subscription> {
+export default class AppSubscriptionService extends BaseService<AppSubscription> {
    constructor(private readonly mailService: MailService) {
       super();
    }
