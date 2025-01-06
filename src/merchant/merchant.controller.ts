@@ -1,6 +1,5 @@
-import { Body, Get, Post } from '@nestjs/common';
+import { Get } from '@nestjs/common';
 import AppController from '@common/decorator/app_controller.decorator';
-import { CreateMerchantDto } from '@common/dto/merchant.dto';
 import CoreController from '@common/core/core.controller';
 import { EAllowedUser } from '@common/utils/enum';
 import MerchantService from './merchant.service';
@@ -9,11 +8,6 @@ import MerchantService from './merchant.service';
 export default class MerchantController extends CoreController {
    constructor(protected readonly service: MerchantService) {
       super();
-   }
-
-   @Post('create')
-   async createMerchant(@Body() dto: CreateMerchantDto) {
-      return this.service.createMerchant(dto);
    }
 
    @Get('test')

@@ -1,6 +1,5 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { MerchantModule } from './merchant/merchant.module';
-import { getServiceToken } from '@common/utils/misc';
 import { AUTH_CREDENTIAL } from '@common/constant';
 import CoreModule from '@common/core/module/core.module';
 import AuthCredentialModule from './auth_credential/auth_credential.module';
@@ -9,6 +8,7 @@ import BasicAuthMiddleware from '@common/middleware/basic_auth.middleware';
 import AppSubscriptionModule from './app_subscription/app_subscription.module';
 import MailModule from '@shared/mail/mail.module';
 import CoreHttpModule from '@common/core/module/core_http.module';
+import { getServiceToken } from '@common/utils/regex';
 
 @Module({
    // imports: [CoreModule, AuthCredentialModule, MailModule, App_subscriptionModule, MerchantModule],

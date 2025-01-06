@@ -5,6 +5,7 @@ import { Injectable } from '@nestjs/common';
 import BaseService from '@common/core/base/base.service';
 import AppSubscription from '@common/schema/ms/app_subscription.schema';
 import { FindByIdDto } from '@common/dto/core.dto';
+import RequestContextService from '@common/core/request_context/request_context_service';
 
 @Injectable()
 export default class AppSubscriptionService extends BaseService<AppSubscription> {
@@ -14,12 +15,14 @@ export default class AppSubscriptionService extends BaseService<AppSubscription>
 
    async subMonitor({ id }: FindByIdDto) {
       const repository = await this.getRepository();
+      const context = await this.moduleRef.resolve(RequestContextService);
       const { data: subscription } = await repository.findOne({
          filter: {
             merchant: id,
             status: EStatus.Active,
          },
          errorOnNotFound: true,
+         options: { lean: false },
          projection: ['merchant', 'subscriptionType'],
       });
       if (subscription.endDate) {
@@ -30,7 +33,10 @@ export default class AppSubscriptionService extends BaseService<AppSubscription>
 
          if (isExpire) subscription.status = EStatus.Expired;
 
-         if (isExpire || isPreExpire) {
+         if (
+            (isExpire && !subscription.sentExpiredMail) ||
+            (isPreExpire && !subscription.sentPreExpiredMail)
+         ) {
             this.mailService.sendMail({
                mail: subscription.merchant.mail,
                type: isPreExpire
@@ -39,6 +45,9 @@ export default class AppSubscriptionService extends BaseService<AppSubscription>
                expirePayload: isPreExpire ? undefined : { expireAt: subscription.endDate },
                preExpirePayload: isPreExpire ? { expireAt: subscription.endDate } : undefined,
             });
+            if (isPreExpire) subscription.sentPreExpiredMail = true;
+            else subscription.sentExpiredMail = true;
+            await subscription.save({ session: context.get('session') });
          }
       }
       return { data: subscription };

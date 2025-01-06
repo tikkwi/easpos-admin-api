@@ -40,10 +40,10 @@ export default class MerchantService
       };
    }
 
-   async loginUser({ id, userId, name, app }: MerchantUserLoginDto) {
+   async loginUser({ merchantId, userId, name, app }: MerchantUserLoginDto) {
       const {
          data: { merchant, subscription, isSubActive },
-      } = await this.merchantWithAuth({ id, lean: false });
+      } = await this.merchantWithAuth({ id: merchantId, lean: false });
       const context = await this.moduleRef.resolve(RequestContextService);
       if (![EUserApp.Customer, EUserApp.Partner].includes(app) && !!subscription) {
          const numAllowedUser =
@@ -59,7 +59,7 @@ export default class MerchantService
       return { data: { merchant, subscription, isSubActive } };
    }
 
-   async createMerchant({ category, ...dto }: CreateMerchantDto) {
+   async nhtp_createMerchant({ category, ...dto }: CreateMerchantDto) {
       const context = await this.moduleRef.resolve(RequestContextService);
       const repository = await this.getRepository();
       const { data: type } = await this.categoryService.getCategory(category);
