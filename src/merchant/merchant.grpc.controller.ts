@@ -8,10 +8,11 @@ export default class MerchantGrpcController {
    constructor(private readonly service: MerchantService) {}
 
    async merchantWithAuth(dto: FindByIdDto, meta: Metadata) {
-      return this.service.merchantWithAuth(await getGrpcContext(meta), dto);
+      return this.service.merchantWithAuth({ ctx: await getGrpcContext(meta), ...dto });
    }
 
-   tmpTst() {
-      return this.service.tmpTst();
+   tmpTst(dto) {
+      console.log('hi', dto);
+      return this.service.tmpTst(dto);
    }
 }

@@ -12,7 +12,7 @@ export default class AuthCredentialService
    extends BaseService<AuthCredential>
    implements AuthCredentialServiceMethods
 {
-   async getAuthCredential(ctx: RequestContext, { url, ip }: GetAuthCredentialDto) {
+   async getAuthCredential({ ctx, url, ip }: GetAuthCredentialDto) {
       const repository = await this.getRepository(ctx.connection, ctx.session);
       const [_, srv, pth] = parseGrpcPath(url);
       const isRpc = url.includes('_PACKAGE');

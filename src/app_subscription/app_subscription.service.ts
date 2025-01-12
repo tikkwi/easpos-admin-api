@@ -12,7 +12,7 @@ export default class AppSubscriptionService extends BaseService<AppSubscription>
       super();
    }
 
-   async subMonitor(ctx: RequestContext, { id }: FindByIdDto) {
+   async subMonitor({ ctx, id }: FindByIdDto) {
       const repository = await this.getRepository(ctx.connection, ctx.session);
       const { data: subscription } = await repository.findOne({
          filter: {

@@ -8,6 +8,6 @@ export default class AuthCredentialGrpcController {
    constructor(private readonly service: AuthCredentialService) {}
 
    async getAuthCredential(dto: GetAuthCredentialDto, meta: Metadata) {
-      return this.service.getAuthCredential(await getGrpcContext(meta), dto);
+      return this.service.getAuthCredential({ ctx: await getGrpcContext(meta), ...dto });
    }
 }
