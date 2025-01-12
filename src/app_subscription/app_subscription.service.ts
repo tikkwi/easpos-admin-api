@@ -5,7 +5,6 @@ import { Injectable } from '@nestjs/common';
 import BaseService from '@common/core/base/base.service';
 import AppSubscription from '@common/schema/ms/app_subscription.schema';
 import { FindByIdDto } from '@common/dto/core.dto';
-import RequestContextService from '@common/core/request_context/request_context_service';
 
 @Injectable()
 export default class AppSubscriptionService extends BaseService<AppSubscription> {
@@ -13,9 +12,8 @@ export default class AppSubscriptionService extends BaseService<AppSubscription>
       super();
    }
 
-   async subMonitor({ id }: FindByIdDto) {
-      const repository = await this.getRepository();
-      const context = await this.moduleRef.resolve(RequestContextService);
+   async subMonitor(ctx: RequestContext, { id }: FindByIdDto) {
+      const repository = await this.getRepository(ctx.connection, ctx.session);
       const { data: subscription } = await repository.findOne({
          filter: {
             merchant: id,
@@ -47,7 +45,7 @@ export default class AppSubscriptionService extends BaseService<AppSubscription>
             });
             if (isPreExpire) subscription.sentPreExpiredMail = true;
             else subscription.sentExpiredMail = true;
-            await subscription.save({ session: context.get('session') });
+            await subscription.save({ session: ctx.session });
          }
       }
       return { data: subscription };
