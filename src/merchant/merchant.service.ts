@@ -27,8 +27,8 @@ export default class MerchantService
       super();
    }
 
-   tmpTst({ message }: { message: string }): { data: string } {
-      return { data: message };
+   tmpTst({ message }: { message: string }) {
+      return { data: { message } };
    }
 
    async merchantWithAuth({ ctx, id }: FindByIdDto) {

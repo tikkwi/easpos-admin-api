@@ -11,8 +11,7 @@ export default class MerchantGrpcController {
       return this.service.merchantWithAuth({ ctx: await getGrpcContext(meta), ...dto });
    }
 
-   tmpTst(dto) {
-      console.log('hi', dto);
-      return this.service.tmpTst(dto);
+   async tmpTst(dto, meta: Metadata) {
+      return this.service.tmpTst({ ctx: await getGrpcContext(meta), ...dto });
    }
 }
