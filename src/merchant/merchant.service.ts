@@ -14,6 +14,7 @@ import BaseService from '@common/core/base/base.service';
 import AppSubscriptionService from '../app_subscription/app_subscription.service';
 import Merchant from '@common/schema/ms/merchant.schema';
 import CategoryService from '@shared/category/category.service';
+import { ModuleRef } from '@nestjs/core';
 
 @AppService()
 export default class MerchantService
@@ -21,6 +22,7 @@ export default class MerchantService
    implements MerchantServiceMethods
 {
    constructor(
+      protected readonly moduleRef: ModuleRef,
       private readonly subscriptionService: AppSubscriptionService,
       private readonly categoryService: CategoryService,
    ) {

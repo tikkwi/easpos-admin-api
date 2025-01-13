@@ -5,10 +5,14 @@ import { Injectable } from '@nestjs/common';
 import BaseService from '@common/core/base/base.service';
 import AppSubscription from '@common/schema/ms/app_subscription.schema';
 import { FindByIdDto } from '@common/dto/core.dto';
+import { ModuleRef } from '@nestjs/core';
 
 @Injectable()
 export default class AppSubscriptionService extends BaseService<AppSubscription> {
-   constructor(private readonly mailService: MailService) {
+   constructor(
+      protected readonly moduleRef: ModuleRef,
+      private readonly mailService: MailService,
+   ) {
       super();
    }
 
